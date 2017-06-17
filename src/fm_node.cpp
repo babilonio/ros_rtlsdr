@@ -12,12 +12,10 @@ std::chrono::time_point<std::chrono::system_clock> start, end;
 void iqCallback(const ros_rtlsdr::ComplexArray::ConstPtr& array)
 {
     end = std::chrono::system_clock::now();
-
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::cout << "reading time: " << elapsed_seconds.count() << "s\n";
+    std::cout << array->data.size() << " samples received" << "\n";
     start = std::chrono::system_clock::now();
-
-    std::cout << array->data.size() << '\n';
 
     return;
 }

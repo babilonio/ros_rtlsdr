@@ -59,8 +59,5 @@ int main(int argc, char **argv)
         ros::spinOnce();
     }
 
-
-    rtl.close();
-
     return 0;
 }
