@@ -8,7 +8,6 @@
 
 std::chrono::time_point<std::chrono::system_clock> start, end;
 
-
 void iqCallback(const ros_rtlsdr::ComplexArray::ConstPtr& array)
 {
     end = std::chrono::system_clock::now();
@@ -22,12 +21,16 @@ void iqCallback(const ros_rtlsdr::ComplexArray::ConstPtr& array)
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "fm_node");
+    ros::init(argc, argv, "iq_to_psd");
     ros::NodeHandle n;
 
     ros::Subscriber sub = n.subscribe("iqdata", 100, iqCallback);
 
-    ros::spin();
+    while (ros::ok())
+    {
+
+        ros::spinOnce();
+    }
 
     return 0;
 }

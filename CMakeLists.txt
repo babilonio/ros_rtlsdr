@@ -135,7 +135,8 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node src/ros_rtlsdr_node.cpp)
-add_executable(fm_node src/fm_node.cpp)
+add_executable(fm_receiver src/fm_receiver.cpp)
+add_executable(iq_to_psd src/iq_to_psd.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -154,7 +155,12 @@ target_link_libraries(${PROJECT_NAME}_node
   rtlsdr
 )
 
-target_link_libraries(fm_node
+target_link_libraries(fm_receiver
+  ${catkin_LIBRARIES}
+  ${PROJECT_NAME}
+)
+
+target_link_libraries(iq_to_psd
   ${catkin_LIBRARIES}
   ${PROJECT_NAME}
 )
