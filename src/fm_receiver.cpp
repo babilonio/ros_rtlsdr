@@ -3,13 +3,13 @@
 #include <iostream>
 #include <chrono>
 
-#include "ros_rtlsdr/Complex.h"
-#include "ros_rtlsdr/ComplexArray.h"
+#include "ros_rtlsdr/IQSample.h"
+#include "ros_rtlsdr/IQSampleArray.h"
 
 std::chrono::time_point<std::chrono::system_clock> start, end;
 
 
-void iqCallback(const ros_rtlsdr::ComplexArray::ConstPtr& array)
+void iqCallback(const ros_rtlsdr::IQSampleArray::ConstPtr& array)
 {
     end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;

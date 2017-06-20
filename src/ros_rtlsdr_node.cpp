@@ -5,8 +5,8 @@
 #include <chrono>
 #include "RtlSdr.hpp"
 
-#include "ros_rtlsdr/Complex.h"
-#include "ros_rtlsdr/ComplexArray.h"
+#include "ros_rtlsdr/IQSample.h"
+#include "ros_rtlsdr/IQSampleArray.h"
 
 RtlSdr rtl;
 
@@ -15,7 +15,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "ros_rtlsdr_node");
     ros::NodeHandle n;
 
-    ros::Publisher  pub = n.advertise<ros_rtlsdr::ComplexArray>("iqdata", 100);
+    ros::Publisher  pub = n.advertise<ros_rtlsdr::IQSampleArray>("iqdata", 100);
 
     if (!rtl.open())
     {
@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     }
 
     IQVector                 samples(0x7FFF + 1);
-    ros_rtlsdr::ComplexArray compArray;
+    ros_rtlsdr::IQSampleArray compArray;
     while (ros::ok())
     {
         std::chrono::time_point<std::chrono::system_clock> start, end;
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
         {
             for (uint32_t i = 0; i < samples.size(); i++)
             {
-                ros_rtlsdr::Complex c;
+                ros_rtlsdr::IQSample c;
                 c.real = samples[i].real();
                 c.imag = samples[i].imag();
                 compArray.data.push_back(c);
