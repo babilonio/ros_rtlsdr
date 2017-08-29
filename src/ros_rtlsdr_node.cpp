@@ -29,7 +29,7 @@ int main(int argc, char **argv)
         rtl.setSampleRate(1102500);
     }
 
-    IQVector                 samples(0x7FFF + 1);
+    IQVector                  samples(0x7FFF + 1);
     ros_rtlsdr::IQSampleArray compArray;
     while (ros::ok())
     {
