@@ -22,6 +22,8 @@ bool RtlSdr::open(uint32_t dev_index)
 
     //std::cout << "(RET) rtlsdr_set_freq_correction = " << rtlsdr_set_freq_correction(dev, 68) << std::endl;
     std::cout << "(RET) rtlsdr_reset_buffer = " << rtlsdr_reset_buffer(dev) << std::endl;
+    std::cout << "(RET) rtlsdr_set_tuner_gain_mode = " << rtlsdr_set_tuner_gain_mode(dev, 0) << std::endl;
+
     return r >= 0;
 }
 
@@ -97,6 +99,35 @@ bool RtlSdr::readSync(IQVector & v)
         int32_t im = buffer[2 * i + 1];
         v[i] = std::complex<double>((re - 128) / 128.0, (im - 128) / 128.0);
     }
+
+    return true;
+}
+
+bool RtlSdr::toFile(int num_samples, std::string path)
+{
+    if (!dev)
+        return false;
+
+    int r, n_read;
+    int block_length = num_samples;
+
+    std::vector<uint8_t> buffer(block_length * 2);
+
+    r = rtlsdr_read_sync(dev, buffer.data(), block_length * 2, &n_read);
+    if (r < 0)
+    {
+        std::cerr << "rtlsdr_read_sync failed" << '\n';
+        return false;
+    }
+
+    if (n_read != 2 * block_length)
+    {
+        std::cerr << "short read, samples lost" << '\n';
+        return false;
+    }
+
+    std::ofstream FILE (path, std::ios::out | std::ios::binary);
+    std::copy(buffer.begin(), buffer.end(), std::ostreambuf_iterator<char>(FILE));
 
     return true;
 }

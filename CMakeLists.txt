@@ -138,6 +138,7 @@ add_executable(${PROJECT_NAME}_node src/ros_rtlsdr_node.cpp)
 add_executable(fm_receiver src/fm_receiver.cpp)
 add_executable(iq_to_psd src/iq_to_psd.cpp)
 add_executable(iq_to_psd_fftw3 src/iq_to_psd_fftw3.cpp)
+add_executable(rtl_to_file src/rtl_to_file.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -151,6 +152,12 @@ add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node
+  ${catkin_LIBRARIES}
+  ${PROJECT_NAME}
+  rtlsdr
+)
+
+target_link_libraries(rtl_to_file
   ${catkin_LIBRARIES}
   ${PROJECT_NAME}
   rtlsdr

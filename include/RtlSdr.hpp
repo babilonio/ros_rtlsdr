@@ -2,9 +2,12 @@
 #ifndef __RTLSDR_HPP__
 #define __RTLSDR_HPP__
 
+#include <fstream>
 #include <cmath>
 #include <complex>
 #include <vector>
+#include <algorithm>
+#include <iterator>
 #include "rtl-sdr.h"
 
 typedef std::vector<std::complex<float>> IQVector;
@@ -31,6 +34,7 @@ void displayDevicesInfo();
 int setCenterFreq(uint32_t);
 int setSampleRate(uint32_t);
 bool readSync(IQVector&);
+bool toFile(int, std::string);
 
 };
 
