@@ -3,19 +3,17 @@
 
 RtlSdr::RtlSdr()
 {
-    deviceOk    = false;
-    deviceCount = rtlsdr_get_device_count();
+    deviceOk = false;
 }
 
 RtlSdr::~RtlSdr()
 {
-    deviceOk = false;
     close();
 }
 
 uint32_t RtlSdr::getDeviceCount()
 {
-    return deviceCount;
+    return rtlsdr_get_device_count();
 }
 
 bool RtlSdr::open(uint32_t dev_index)
@@ -31,13 +29,14 @@ bool RtlSdr::open(uint32_t dev_index)
 
 void RtlSdr::close()
 {
+    deviceOk = false;
     rtlsdr_close(dev);
     std::cout << "Closing RTLSDR device" << '\n';
 }
 
 void RtlSdr::displayDevicesInfo()
 {
-    for (uint32_t i = 0; i < deviceCount; ++i)
+    for (uint32_t i = 0; i < getDeviceCount(); ++i)
     {
         std::cout << "Device " << i << std::endl;
         std::cout << "\tName: " << rtlsdr_get_device_name(i) << std::endl;

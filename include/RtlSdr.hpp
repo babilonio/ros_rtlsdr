@@ -37,7 +37,7 @@ int setCenterFreq(uint32_t);
 int setSampleRate(uint32_t);
 bool readSync(IQVector&);
 bool toFile(int, std::string);
-bool ok();
+bool ok(){return deviceOk;};
 
 };
 
