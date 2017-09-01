@@ -34,38 +34,30 @@ height, width = 0,0
 spacing = 8
 # phi = 0
 
-# DEVICE SETTINGS
-sample_rate = int(2.4e6)
-center_freq = int(102.4e6)
-center_freq_offset = 250e3         # Offset to capture at
-sdr = RtlSdr()
-sdr.sample_rate = sample_rate # Hz
-sdr.center_freq = center_freq - center_freq_offset # Hz
-sdr.freq_correction = 60   # PPM
-sdr.gain = 'auto'
-
-plt.ion()
+#plt.ion()
 
 def genWave(size):
     # global phi
     # theta = np.arange(phi,2*2*np.pi + phi,2* spacing* 2*np.pi/float(size))
     # wave = np.sin(theta)
     # phi = phi + 0.1
-    global sdr
 
-    try:
-        samples = sdr.read_samples(256*1024)
-    except:
-        print("Error reading samples")
+    inbytes = np.fromfile("/tmp/samples.bin", dtype=np.uint8)
+    norm = np.empty(len(inbytes)//2)
+    norm.fill(128)
+    samples = np.empty(len(inbytes)//2, 'complex')
+    samples.real = (inbytes[::2] - norm)/ 128.0
+    samples.imag = (inbytes[1::2] - norm)/ 128.0
 
-    f, Pxx_den = signal.welch(samples, sdr.sample_rate, nperseg=1024)
+    start = time.time()
+    f, Pxx_den = signal.welch(samples, 2.4e6, nperseg=1024)
     N = len(Pxx_den)/2
     w =  10*np.log10(1e6*np.concatenate( (Pxx_den[N:], Pxx_den[1:N]) ) )
-    wave = w / max(abs(w)) #np.array( , dtype=float)
+    wave = w  / max(abs(w))
 
-    plt.plot(np.arange(0,len(wave)), wave, hold=False )
+    #plt.plot(np.arange(0,len(wave)), wave, hold=False )
 
-    plt.pause(0.005)
+    #plt.pause(0.005)
 
 
     s = ",".join(str(x) for x in list(wave) )

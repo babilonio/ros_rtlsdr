@@ -3,11 +3,13 @@
 
 RtlSdr::RtlSdr()
 {
+    deviceOk    = false;
     deviceCount = rtlsdr_get_device_count();
 }
 
 RtlSdr::~RtlSdr()
 {
+    deviceOk = false;
     close();
 }
 
@@ -23,7 +25,7 @@ bool RtlSdr::open(uint32_t dev_index)
     //std::cout << "(RET) rtlsdr_set_freq_correction = " << rtlsdr_set_freq_correction(dev, 68) << std::endl;
     std::cout << "(RET) rtlsdr_reset_buffer = " << rtlsdr_reset_buffer(dev) << std::endl;
     std::cout << "(RET) rtlsdr_set_tuner_gain_mode = " << rtlsdr_set_tuner_gain_mode(dev, 0) << std::endl;
-
+    deviceOk = (r >= 0);
     return r >= 0;
 }
 
@@ -64,6 +66,10 @@ int RtlSdr::setSampleRate(uint32_t rate)
 {
     return rtlsdr_set_sample_rate(dev, rate);
 }
+uint32_t RtlSdr::getSampleRate()
+{
+    return rtlsdr_get_sample_rate(dev);
+}
 
 void RtlSdr::callback(unsigned char *buf, uint32_t len, void *ctx)
 {
@@ -75,8 +81,8 @@ bool RtlSdr::readSync(IQVector & v)
     if (!dev)
         return false;
 
-    int r, n_read;
-    int block_length = v.size();
+    int                  r, n_read;
+    int                  block_length = v.size();
 
     std::vector<uint8_t> buffer(block_length * 2);
 
@@ -108,8 +114,8 @@ bool RtlSdr::toFile(int num_samples, std::string path)
     if (!dev)
         return false;
 
-    int r, n_read;
-    int block_length = num_samples;
+    int                  r, n_read;
+    int                  block_length = num_samples;
 
     std::vector<uint8_t> buffer(block_length * 2);
 
@@ -126,7 +132,7 @@ bool RtlSdr::toFile(int num_samples, std::string path)
         return false;
     }
 
-    std::ofstream FILE (path, std::ios::out | std::ios::binary);
+    std::ofstream FILE(path, std::ios::out | std::ios::binary);
     std::copy(buffer.begin(), buffer.end(), std::ostreambuf_iterator<char>(FILE));
 
     return true;

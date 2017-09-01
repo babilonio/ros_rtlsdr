@@ -54,11 +54,10 @@ add_message_files(
 )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  ParamSet.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -135,10 +134,10 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node src/ros_rtlsdr_node.cpp)
-add_executable(fm_receiver src/fm_receiver.cpp)
 add_executable(iq_to_psd src/iq_to_psd.cpp)
 add_executable(iq_to_psd_fftw3 src/iq_to_psd_fftw3.cpp)
 add_executable(rtl_to_file src/rtl_to_file.cpp)
+add_executable(driver src/driver.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -163,11 +162,6 @@ target_link_libraries(rtl_to_file
   rtlsdr
 )
 
-target_link_libraries(fm_receiver
-  ${catkin_LIBRARIES}
-  ${PROJECT_NAME}
-)
-
 target_link_libraries(iq_to_psd
   ${catkin_LIBRARIES}
   ${PROJECT_NAME}
@@ -179,6 +173,11 @@ target_link_libraries(iq_to_psd_fftw3
   /usr/local/lib/libfftw3.a
 )
 
+target_link_libraries(driver
+  ${catkin_LIBRARIES}
+  ${PROJECT_NAME}
+  rtlsdr
+)
 
 #############
 ## Install ##

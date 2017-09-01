@@ -15,6 +15,7 @@ typedef std::vector<std::complex<float>> IQVector;
 class RtlSdr {
 private:
 
+bool deviceOk;
 uint32_t     deviceCount;
 rtlsdr_dev_t * dev;
 static void  callback(unsigned char *, uint32_t, void *);
@@ -29,12 +30,14 @@ void close();
 
 uint32_t getDeviceCount();
 uint32_t getCenterFreq();
+uint32_t getSampleRate();
 void displayDevicesInfo();
 
 int setCenterFreq(uint32_t);
 int setSampleRate(uint32_t);
 bool readSync(IQVector&);
 bool toFile(int, std::string);
+bool ok();
 
 };
 

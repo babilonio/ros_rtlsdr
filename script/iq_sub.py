@@ -31,21 +31,21 @@ def callback(data):
     end = time.time()
     print("Reading time: ", end - start)
 
-    # start = time.time()
-    # f, Pxx_den = signal.welch(samples, sample_rate, nperseg=1024)
-    # N = len(Pxx_den)/2
-    # wave =  10*np.log10(1e6*np.concatenate( (Pxx_den[N:], Pxx_den[1:N]) ) )
-    # # wave = w  / max(abs(w))
-    # print("Process time : ", time.time() - start)
-    #
-    # start = time.time()
-    # # plt.plot(f/1e6, 10*np.log10(wave * 1e6), hold=False )
-    # plt.plot(np.arange(0,len(wave)), wave, hold=False )
-    psd(samples, NFFT=1024, Fs=sample_rate/1e6, Fc=102.4, hold=False)
-    plt.xlabel('frequency [MHz]')
-    plt.ylabel('PSD [dB/MHz]')
-    ylim([-20,20])
-    print("Plotting time : ", time.time() - start)
+    start = time.time()
+    f, Pxx_den = signal.welch(samples, sample_rate, nperseg=1024)
+    N = len(Pxx_den)/2
+    wave =  10*np.log10(1e6*np.concatenate( (Pxx_den[N:], Pxx_den[1:N]) ) )
+    # wave = w  / max(abs(w))
+    print("Process time : ", time.time() - start)
+
+    start = time.time()
+    # plt.plot(f/1e6, 10*np.log10(wave * 1e6), hold=False )
+    plt.plot(np.arange(0,len(wave)), wave, hold=False )
+    # psd(samples, NFFT=1024, Fs=sample_rate/1e6, Fc=102.4, hold=False)
+    # plt.xlabel('frequency [MHz]')
+    # plt.ylabel('PSD [dB/MHz]')
+    # ylim([-20,20])
+    # print("Plotting time : ", time.time() - start)
 
     plt.pause(0.005)
 

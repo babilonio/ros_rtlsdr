@@ -26,9 +26,9 @@ int main(int argc, char **argv)
     }
     else
     {
-        rtl.setCenterFreq(102.4e6);
+        rtl.setCenterFreq(102.4e6 - 250e3);
         std::cout << "center_freq " << rtl.getCenterFreq() << '\n';
-        rtl.setSampleRate(2.4e6);
+        rtl.setSampleRate(1102500);
     }
 
     while (ros::ok())
