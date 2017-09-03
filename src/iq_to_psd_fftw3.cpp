@@ -3,8 +3,8 @@
 #include <iostream>
 #include <chrono>
 #include "std_msgs/Float32MultiArray.h"
-#include "ros_rtlsdr/IQSample.h"
-#include "ros_rtlsdr/IQSampleArray.h"
+#include "rosrtlsdr/IQSample.h"
+#include "rosrtlsdr/IQSampleArray.h"
 #include <fftw3.h>
 
 #include <stdio.h>
@@ -18,7 +18,7 @@ std::chrono::time_point<std::chrono::system_clock> start, end;
 ros::Publisher                                     pub;
 
 
-void iqCallback(const ros_rtlsdr::IQSampleArray::ConstPtr& array)
+void iqCallback(const rosrtlsdr::IQSampleArray::ConstPtr& array)
 {
     end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;

@@ -3,9 +3,9 @@
 #include <chrono>
 #include "std_msgs/String.h"
 #include "std_msgs/UInt32.h"
-#include "ros_rtlsdr/IQSample.h"
-#include "ros_rtlsdr/IQSampleArray.h"
-#include "ros_rtlsdr/ParamSet.h"
+#include "rosrtlsdr/IQSample.h"
+#include "rosrtlsdr/IQSampleArray.h"
+#include "rosrtlsdr/ParamSet.h"
 
 #include "textcolor.h"
 #include "RtlSdr.hpp"
@@ -17,7 +17,7 @@ std::chrono::time_point<std::chrono::system_clock> start, end;
 std::chrono::time_point<std::chrono::system_clock> last_publish;
 
 RtlSdr                                             rtl;
-int                                                N = 0x7FFFF + 1;
+int                                                N = 0x7FFF + 1;
 
 int                                                max_files   = 1;
 int                                                active_file = 0;
@@ -28,8 +28,8 @@ ros::Publisher                                     pub_sample_rate;
 //*****************//
 
 //*** ROS SERVICES **//
-bool set_center_freq(ros_rtlsdr::ParamSet::Request  &req,
-                     ros_rtlsdr::ParamSet::Response &res)
+bool set_center_freq(rosrtlsdr::ParamSet::Request  &req,
+                     rosrtlsdr::ParamSet::Response &res)
 {
     ROS_INFO("center_freq_set request: fc=%u", (unsigned int) req.param);
 
@@ -46,8 +46,8 @@ bool set_center_freq(ros_rtlsdr::ParamSet::Request  &req,
     return true;
 }
 
-bool set_sample_rate(ros_rtlsdr::ParamSet::Request  &req,
-                     ros_rtlsdr::ParamSet::Response &res)
+bool set_sample_rate(rosrtlsdr::ParamSet::Request  &req,
+                     rosrtlsdr::ParamSet::Response &res)
 {
     ROS_INFO("sample_rate_set request: fs=%u", (unsigned int) req.param);
 
@@ -65,8 +65,8 @@ bool set_sample_rate(ros_rtlsdr::ParamSet::Request  &req,
     return true;
 }
 
-bool set_tuner_gain(ros_rtlsdr::ParamSet::Request  &req,
-                    ros_rtlsdr::ParamSet::Response &res)
+bool set_tuner_gain(rosrtlsdr::ParamSet::Request  &req,
+                    rosrtlsdr::ParamSet::Response &res)
 {
     ROS_INFO("set_tuner_gain request: gain=%d", (int) req.param);
 
@@ -80,8 +80,8 @@ bool set_tuner_gain(ros_rtlsdr::ParamSet::Request  &req,
     return true;
 }
 
-bool set_tuner_gain_mode(ros_rtlsdr::ParamSet::Request  &req,
-                         ros_rtlsdr::ParamSet::Response &res)
+bool set_tuner_gain_mode(rosrtlsdr::ParamSet::Request  &req,
+                         rosrtlsdr::ParamSet::Response &res)
 {
     ROS_INFO("set_tuner_gain_mode request: mode=%d", (int) req.param);
 
@@ -95,8 +95,8 @@ bool set_tuner_gain_mode(ros_rtlsdr::ParamSet::Request  &req,
     return true;
 }
 
-bool set_num_samples_to_read(ros_rtlsdr::ParamSet::Request  &req,
-                             ros_rtlsdr::ParamSet::Response &res)
+bool set_num_samples_to_read(rosrtlsdr::ParamSet::Request  &req,
+                             rosrtlsdr::ParamSet::Response &res)
 {
     ROS_INFO("num_samples_to_read_set request: N=%d", (int) req.param);
 
@@ -145,7 +145,7 @@ int main(int argc, char **argv)
                 else
                 {
                     rtl.setCenterFreq(102.4e6);
-                    rtl.setSampleRate(2.4e6);
+                    rtl.setSampleRate(2097152);
 
                     std_msgs::UInt32 sample_rate, center_freq;
                     sample_rate.data = rtl.getSampleRate();

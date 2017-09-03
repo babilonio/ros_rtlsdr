@@ -2,8 +2,8 @@
 #include <iostream>
 #include <chrono>
 #include "std_msgs/String.h"
-#include "ros_rtlsdr/IQSample.h"
-#include "ros_rtlsdr/IQSampleArray.h"
+#include "rosrtlsdr/IQSample.h"
+#include "rosrtlsdr/IQSampleArray.h"
 #include "RtlSdr.hpp"
 
 std::chrono::time_point<std::chrono::system_clock> start, end;
@@ -14,7 +14,7 @@ RtlSdr rtl;
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "ros_rtlsdr_node");
+    ros::init(argc, argv, "rosrtlsdr_node");
     ros::NodeHandle n;
 
     ros::Publisher  pub = n.advertise<std_msgs::String>("path_to_samples", 10);

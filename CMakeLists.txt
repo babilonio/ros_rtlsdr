@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(ros_rtlsdr)
+project(rosrtlsdr)
 
 ## Add support for C++11, supported in ROS Kinetic and newer
 add_definitions(-std=c++11 -Wall)
@@ -104,7 +104,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
  INCLUDE_DIRS include
- LIBRARIES ros_rtlsdr
+ LIBRARIES rosrtlsdr
  CATKIN_DEPENDS roscpp rospy std_msgs sensor_msgs message_runtime
  # DEPENDS system_lib
 )
@@ -134,7 +134,7 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/ros_rtlsdr_node.cpp)
+add_executable(${PROJECT_NAME}_node src/rosrtlsdr_node.cpp)
 # add_executable(iq_to_psd src/iq_to_psd.cpp)
 # add_executable(iq_to_psd_fftw3 src/iq_to_psd_fftw3.cpp)
 # add_executable(rtl_to_file src/rtl_to_file.cpp)
@@ -220,7 +220,7 @@ target_link_libraries(driver
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_ros_rtlsdr.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_rosrtlsdr.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

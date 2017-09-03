@@ -1,4 +1,0 @@
-<launch>
-  <node name="driver" pkg="ros_rtlsdr" type="driver" />
-  <node name="calc_psd" pkg="ros_rtlsdr" type="calc_psd.py" />
-</launch>

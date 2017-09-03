@@ -7,7 +7,6 @@ from std_msgs.msg import Float32MultiArray
 import argparse
 import time
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy import signal
 
 
@@ -27,7 +26,6 @@ class PSDCalc(object):
         self._fft_size = 1024
         self._sample_rate = 0
         self._inbytes = np.zeros(10)
-
     @property
     def sample_rate(self):
         return self._sample_rate
@@ -53,8 +51,9 @@ class PSDCalc(object):
         samples.real = (self._inbytes[::2] - norm) / 128.0
         samples.imag = (self._inbytes[1::2] - norm) / 128.0
 
-        f, Pxx_den = signal.welch(
-            samples, self._sample_rate, nperseg=self._fft_size)
+        f, Pxx_den = signal.periodogram(
+            samples, self._sample_rate, nfft=self._fft_size)
+
         N = len(Pxx_den) / 2
         psd = 10 * np.log10(self._sample_rate *
                             np.concatenate((Pxx_den[N:], Pxx_den[1:N])))
@@ -80,9 +79,9 @@ def path_to_samples_callback(data, psd):
 def calc_psd():
 
     # PARSE INPUT
-    # parser = argparse.ArgumentParser(description='Calculate a signal PSD ')
-    # parser.add_argument("--plot", help='show psd', action="store_true")
-    # args = parser.parse_args()
+    parser = argparse.ArgumentParser(description='Calculate a signal PSD ')
+    parser.add_argument("--plot", help='show psd', action="store_true")
+    args = parser.parse_args()
 
     pub = rospy.Publisher('center_freq_rms', Float32MultiArray, queue_size=10)
     pub = rospy.Publisher('psd', Float32MultiArray, queue_size=10)
@@ -98,8 +97,9 @@ def calc_psd():
         rospy.logwarn("Waiting for topic to be published")
         rate.sleep()
 
-    # if args.plot:
-    #     plt.ion()
+    if args.plot:
+        import matplotlib.pyplot as plt
+        plt.ion()
 
     while not rospy.is_shutdown():
         try:
@@ -109,10 +109,10 @@ def calc_psd():
         except:
             rospy.logerr("Error estimate_psd")
 
-        # if args.plot:
-        #     plt.plot(f, psd_vector.data, hold=False)
-        #     plt.ylim([-50, 20])
-        #     plt.pause(0.005)
+        if args.plot:
+            plt.plot(f, psd_vector.data, hold=False)
+            plt.ylim([-50, 20])
+            plt.pause(0.005)
 
         rate.sleep()
 
