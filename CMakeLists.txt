@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  sensor_msgs
   message_generation
 )
 
@@ -104,7 +105,7 @@ generate_messages(
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES ros_rtlsdr
- CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
+ CATKIN_DEPENDS roscpp rospy std_msgs sensor_msgs message_runtime
  # DEPENDS system_lib
 )
 
@@ -134,9 +135,9 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node src/ros_rtlsdr_node.cpp)
-add_executable(iq_to_psd src/iq_to_psd.cpp)
-add_executable(iq_to_psd_fftw3 src/iq_to_psd_fftw3.cpp)
-add_executable(rtl_to_file src/rtl_to_file.cpp)
+# add_executable(iq_to_psd src/iq_to_psd.cpp)
+# add_executable(iq_to_psd_fftw3 src/iq_to_psd_fftw3.cpp)
+# add_executable(rtl_to_file src/rtl_to_file.cpp)
 add_executable(driver src/driver.cpp)
 
 ## Rename C++ executable without prefix
@@ -156,22 +157,22 @@ target_link_libraries(${PROJECT_NAME}_node
   rtlsdr
 )
 
-target_link_libraries(rtl_to_file
-  ${catkin_LIBRARIES}
-  ${PROJECT_NAME}
-  rtlsdr
-)
+# target_link_libraries(rtl_to_file
+#   ${catkin_LIBRARIES}
+#   ${PROJECT_NAME}
+#   rtlsdr
+# )
 
-target_link_libraries(iq_to_psd
-  ${catkin_LIBRARIES}
-  ${PROJECT_NAME}
-)
-
-target_link_libraries(iq_to_psd_fftw3
-  ${catkin_LIBRARIES}
-  ${PROJECT_NAME}
-  /usr/local/lib/libfftw3.a
-)
+# target_link_libraries(iq_to_psd
+#   ${catkin_LIBRARIES}
+#   ${PROJECT_NAME}
+# )
+#
+# target_link_libraries(iq_to_psd_fftw3
+#   ${catkin_LIBRARIES}
+#   ${PROJECT_NAME}
+#   /usr/local/lib/libfftw3.a
+# )
 
 target_link_libraries(driver
   ${catkin_LIBRARIES}

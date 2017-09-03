@@ -11,11 +11,22 @@ import matplotlib.pyplot as plt
 from scipy import signal
 
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 class PSDCalc(object):
     def __init__(self):
         self._fft_size = 1024
         self._sample_rate = 1e6
-        self._inbytes = np.zeros(self._fft_size)
+        self._inbytes = np.ones(self._fft_size * 2)
 
     @property
     def sample_rate(self):
@@ -47,13 +58,15 @@ class PSDCalc(object):
         N = len(Pxx_den) / 2
         psd = 10 * np.log10(self._sample_rate *
                             np.concatenate((Pxx_den[N:], Pxx_den[1:N])))
-        print("estimate_psd process time : ", time.time() - start)
-        return f[0:len(psd)], psd.astype(float)
+        nf = np.concatenate((f[N:], f[1:N]))
+        rospy.loginfo("%sestimate_psd process time : %f%s",
+                      bcolors.OKBLUE, time.time() - start, bcolors.ENDC)
+        return nf, psd.astype(float)
 
 
 def sample_rate_callback(data, psd):
     psd.sample_rate = data.data
-    rospy.loginfo("sample_rate set to %u", psd.sample_rate)
+    rospy.loginfo("%sample_rate_callback : %0.3fMHz%s", bcolors.OKGREEN, psd.sample_rate/1.0e6, bcolors.ENDC)
 
 
 def path_to_samples_callback(data, psd):
@@ -70,6 +83,7 @@ def calc_psd():
     parser.add_argument("--plot", help='show psd', action="store_true")
     args = parser.parse_args()
 
+    pub = rospy.Publisher('center_freq_rms', Float32MultiArray, queue_size=10)
     pub = rospy.Publisher('psd', Float32MultiArray, queue_size=10)
     rospy.init_node('calc_psd', anonymous=True)
     psd = PSDCalc()
@@ -86,12 +100,13 @@ def calc_psd():
     while not rospy.is_shutdown():
         psd_vector = Float32MultiArray()
         f, psd_vector.data = psd.estimate_psd()
+        pub.publish(psd_vector)
 
         if args.plot:
             plt.plot(f, psd_vector.data, hold=False)
+            plt.ylim([-50, 20])
             plt.pause(0.005)
 
-        pub.publish(psd_vector)
         rate.sleep()
 
 

@@ -10,12 +10,12 @@
 #include <iterator>
 #include "rtl-sdr.h"
 
-typedef std::vector<std::complex<float>> IQVector;
+typedef std::vector<std::complex<float> >   IQVector;
 
 class RtlSdr {
 private:
 
-bool deviceOk;
+bool         deviceOk;
 uint32_t     deviceCount;
 rtlsdr_dev_t * dev;
 static void  callback(unsigned char *, uint32_t, void *);
@@ -31,14 +31,22 @@ void close();
 uint32_t getDeviceCount();
 uint32_t getCenterFreq();
 uint32_t getSampleRate();
+int getTunerGain();
 void displayDevicesInfo();
+std::string getGainsString();
 
+int setTunerBandwidth(uint32_t);
+int setTunerGainMode(int);
+int setTunerGain(int);
+int setTunerIFGain(int, int);
 int setCenterFreq(uint32_t);
 int setSampleRate(uint32_t);
 bool readSync(IQVector&);
 bool toFile(int, std::string);
-bool ok(){return deviceOk;};
-
+bool ok()
+{
+    return deviceOk;
+};
 };
 
 

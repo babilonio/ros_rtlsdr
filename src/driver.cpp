@@ -7,14 +7,17 @@
 #include "ros_rtlsdr/IQSampleArray.h"
 #include "ros_rtlsdr/ParamSet.h"
 
+#include "textcolor.h"
 #include "RtlSdr.hpp"
 
 //*** GLOBAL VAR *****//
+double                                             dt;
+std::chrono::duration<double>                      elapsed_seconds;
 std::chrono::time_point<std::chrono::system_clock> start, end;
 std::chrono::time_point<std::chrono::system_clock> last_publish;
 
 RtlSdr                                             rtl;
-int                                                N = 0x7FFF + 1;
+int                                                N = 0x7FFFF + 1;
 
 int                                                max_files   = 1;
 int                                                active_file = 0;
@@ -62,6 +65,36 @@ bool set_sample_rate(ros_rtlsdr::ParamSet::Request  &req,
     return true;
 }
 
+bool set_tuner_gain(ros_rtlsdr::ParamSet::Request  &req,
+                    ros_rtlsdr::ParamSet::Response &res)
+{
+    ROS_INFO("set_tuner_gain request: gain=%d", (int) req.param);
+
+
+    if (req.param >= 0 && req.param < 29)
+        res.error = rtl.setTunerGain(req.param);
+    else
+        res.error = 1;
+
+    ROS_INFO("sending back response error: [%d]", res.error);
+    return true;
+}
+
+bool set_tuner_gain_mode(ros_rtlsdr::ParamSet::Request  &req,
+                         ros_rtlsdr::ParamSet::Response &res)
+{
+    ROS_INFO("set_tuner_gain_mode request: mode=%d", (int) req.param);
+
+
+    if (req.param >= 0 && req.param < 29)
+        res.error = rtl.setTunerGainMode(req.param);
+    else
+        res.error = 1;
+
+    ROS_INFO("sending back response error: [%d]", res.error);
+    return true;
+}
+
 bool set_num_samples_to_read(ros_rtlsdr::ParamSet::Request  &req,
                              ros_rtlsdr::ParamSet::Response &res)
 {
@@ -90,10 +123,11 @@ int main(int argc, char **argv)
     pub_center_freq = n.advertise<std_msgs::UInt32>("center_freq", max_files);
     pub_sample_rate = n.advertise<std_msgs::UInt32>("sample_rate", max_files);
 
-    ros::ServiceServer service_cf = n.advertiseService("set_center_freq", set_center_freq);
-    ros::ServiceServer service_sr = n.advertiseService("set_sample_rate", set_sample_rate);
-    ros::ServiceServer service_ns = n.advertiseService("set_num_samples_to_read", set_num_samples_to_read);
-
+    ros::ServiceServer service_cf  = n.advertiseService("set_center_freq", set_center_freq);
+    ros::ServiceServer service_sr  = n.advertiseService("set_sample_rate", set_sample_rate);
+    ros::ServiceServer service_ns  = n.advertiseService("set_num_samples_to_read", set_num_samples_to_read);
+    ros::ServiceServer service_tg  = n.advertiseService("set_tuner_gain", set_tuner_gain);
+    ros::ServiceServer service_tgm = n.advertiseService("set_tuner_gain_mode", set_tuner_gain_mode);
 
     while (ros::ok())
     {
@@ -113,37 +147,37 @@ int main(int argc, char **argv)
                     rtl.setCenterFreq(102.4e6);
                     rtl.setSampleRate(2.4e6);
 
-                    std_msgs::UInt32 val;
-                    val.data = rtl.getSampleRate();
-                    pub_sample_rate.publish(val);
-                    val.data = rtl.getCenterFreq();
-                    pub_center_freq.publish(val);
+                    std_msgs::UInt32 sample_rate, center_freq;
+                    sample_rate.data = rtl.getSampleRate();
+                    pub_sample_rate.publish(sample_rate);
+                    center_freq.data = rtl.getCenterFreq();
+                    pub_center_freq.publish(center_freq);
 
                     last_publish = std::chrono::system_clock::now();
 
-                    ROS_INFO("RTL-SDR center_freq : %u", rtl.getCenterFreq());
-                    ROS_INFO("RTL-SDR sample_rate : %u", rtl.getSampleRate());
-                    ROS_INFO("RTL-SDR num_samples_to_read : %d", N);
+                    ROS_INFO("RTL-SDR center_freq : %.3f MHz", rtl.getCenterFreq() / 1e6);
+                    ROS_INFO("RTL-SDR sample_rate : %.3f MHz", rtl.getSampleRate() / 1e6);
+                    ROS_INFO("RTL-SDR num_samples_to_read : %d, %f seconds", N, N / (sample_rate.data * 1.0f));
+
+                    //ROS_INFO("%s", rtl.getGainsString().c_str());
                 }
             }
             else
             {
-
-                // start = std::chrono::system_clock::now();
-
-                if (rtl.toFile(N, "/tmp/samples" + std::to_string(active_file) + ".bin"))
+                if (rtl.toFile(N, "/media/ramdisk/samples" + std::to_string(active_file) + ".bin"))
                 {
                     std_msgs::String str;
-                    str.data = "/tmp/samples" + std::to_string(active_file) + ".bin";
+                    str.data = "/media/ramdisk/samples" + std::to_string(active_file) + ".bin";
                     pub_path.publish(str);
 
                     if (++active_file >= max_files)
                         active_file = 0;
 
-                    // end = std::chrono::system_clock::now();
+                    end             = std::chrono::system_clock::now();
+                    elapsed_seconds = end - start;
+                    dt              = elapsed_seconds.count();
 
-                    // std::chrono::duration<double> elapsed_seconds = end - start;
-                    // ROS_INFO("RTL-SDR samples reading time: %f", elapsed_seconds.count());
+                    start = std::chrono::system_clock::now();
                 }
                 else
                 {
@@ -163,16 +197,19 @@ int main(int argc, char **argv)
         std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - last_publish;
         if (elapsed_seconds.count() > 5.0)
         {
-            std_msgs::UInt32 val;
-            val.data = rtl.getSampleRate();
-            pub_sample_rate.publish(val);
-            ROS_INFO("RTL-SDR publishing sample_rate : %u", val.data);
+            std_msgs::UInt32 sample_rate, center_freq;
+            sample_rate.data = rtl.getSampleRate();
+            pub_sample_rate.publish(sample_rate);
+            center_freq.data = rtl.getCenterFreq();
+            pub_center_freq.publish(center_freq);
 
-            val.data = rtl.getCenterFreq();
-            pub_center_freq.publish(val);
-            ROS_INFO("RTL-SDR publishing center_freq : %u", val.data);
+            ROS_INFO("%sRTL-SDR publishing sample_rate : %.3f MHz%s", BLUE_COLOR, sample_rate.data / 1e6, END_COLOR);
+            ROS_INFO("%sRTL-SDR publishing center_freq : %.3f MHz%s", BLUE_COLOR, center_freq.data / 1e6, END_COLOR);
 
             last_publish = std::chrono::system_clock::now();
+
+
+            ROS_INFO("RTL-SDR %d samples (%f seconds) reading time: %f", N, N / (sample_rate.data * 1.0f), dt);
         }
 
         ros::spinOnce();

@@ -2,12 +2,14 @@
 import rospy
 from std_msgs.msg import UInt32
 from std_msgs.msg import Float32MultiArray
+from sensor_msgs.msg import NavSatFix
 
 import socket
 import datetime
 import time
 import numpy as np
 from scipy import signal
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -23,10 +25,12 @@ class bcolors:
 def psd_callback(data, wave):
     wave.vector = np.array(data.data).astype(float)
 
+
 def nowstr():
     return datetime.datetime.fromtimestamp(
         int(time.time())
     ).strftime('[%Y-%m-%d,%H:%M:%S]')
+
 
 class Wave(object):
     def __init__(self):
@@ -49,12 +53,11 @@ class Wave(object):
 
 def udp_bridge():
 
+    pub_location = rospy.Publisher('location', NavSatFix, queue_size=10)
+
     rospy.init_node('udp_bridge', anonymous=True)
 
-
-
-
-    UDP_IP = "192.168.0.159"
+    UDP_IP = "224.0.0.1"
     UDP_PORT = 6100
     sock = socket.socket(socket.AF_INET,  # Internet
                          socket.SOCK_DGRAM)  # UDP
@@ -74,10 +77,12 @@ def udp_bridge():
 
         try:
             if msg[0] == "LOC":
-                lat = float(msg[1])
-                lon = float(msg[2])
-                alt = float(msg[3])
-                print nowstr() + bcolors.OKBLUE + " Location : ", lat, lon, alt, bcolors.ENDC
+                nav = NavSatFix()
+                nav.latitude = float(msg[1])
+                nav.longitude = float(msg[2])
+                nav.altitude = float(msg[3])
+                pub_location.publish(nav)
+                print nowstr() + bcolors.OKBLUE + " Location : ", nav.latitude, nav.longitude, nav.altitude, bcolors.ENDC
             elif msg[0] == "MOU":
                 mx = float(msg[1])
                 my = float(msg[2])

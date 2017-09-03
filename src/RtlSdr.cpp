@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include "RtlSdr.hpp"
 
 RtlSdr::RtlSdr()
@@ -22,7 +23,7 @@ bool RtlSdr::open(uint32_t dev_index)
 
     //std::cout << "(RET) rtlsdr_set_freq_correction = " << rtlsdr_set_freq_correction(dev, 68) << std::endl;
     std::cout << "(RET) rtlsdr_reset_buffer = " << rtlsdr_reset_buffer(dev) << std::endl;
-    std::cout << "(RET) rtlsdr_set_tuner_gain_mode = " << rtlsdr_set_tuner_gain_mode(dev, 0) << std::endl;
+    std::cout << "(RET) rtlsdr_set_tuner_gain_mode = " << rtlsdr_set_tuner_gain_mode(dev, 1) << std::endl;
     deviceOk = (r >= 0);
     return r >= 0;
 }
@@ -53,6 +54,39 @@ void RtlSdr::displayDevicesInfo()
     }
 }
 
+std::string RtlSdr::getGainsString()
+{
+    std::stringstream ss;
+    int               gains[30];
+    int               len_gains;
+
+    len_gains = rtlsdr_get_tuner_gains(dev, gains);
+    std::cout << "Tuner Gains: " << len_gains << '\n';
+    if (len_gains < 30)
+        for (int i = 0; i < len_gains; i++)
+        {
+            std::cout << "Gain " << i << " : " << gains[i] << '\n';
+        }
+    return ss.str();
+}
+
+int RtlSdr::setTunerGainMode(int mode)
+{
+    return rtlsdr_set_tuner_gain_mode(dev, mode);
+}
+
+int RtlSdr::setTunerGain(int gain)
+{
+    return rtlsdr_set_tuner_gain(dev, gain);
+}
+int RtlSdr::getTunerGain()
+{
+    return rtlsdr_get_tuner_gain(dev);
+}
+int RtlSdr::setTunerIFGain(int stage, int gain)
+{
+    return rtlsdr_set_tuner_if_gain(dev, stage, gain);
+}
 int RtlSdr::setCenterFreq(uint32_t freq)
 {
     return rtlsdr_set_center_freq(dev, freq);
@@ -68,6 +102,11 @@ int RtlSdr::setSampleRate(uint32_t rate)
 uint32_t RtlSdr::getSampleRate()
 {
     return rtlsdr_get_sample_rate(dev);
+}
+
+int RtlSdr::setTunerBandwidth(uint32_t bw)
+{
+    return rtlsdr_set_tuner_bandwidth(dev, bw);
 }
 
 void RtlSdr::callback(unsigned char *buf, uint32_t len, void *ctx)
