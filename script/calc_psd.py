@@ -66,14 +66,15 @@ class PSDCalc(object):
 
 def sample_rate_callback(data, psd):
     psd.sample_rate = data.data
-    rospy.loginfo("%sample_rate_callback : %0.3fMHz%s", bcolors.OKGREEN, psd.sample_rate/1.0e6, bcolors.ENDC)
+    rospy.loginfo("%sample_rate_callback : %0.3fMHz%s",
+                  bcolors.OKGREEN, psd.sample_rate / 1.0e6, bcolors.ENDC)
 
 
 def path_to_samples_callback(data, psd):
     try:
         psd.inbytes = np.fromfile(data.data, dtype=np.uint8)
     except:
-        rospy.logerror("Error reading samples")
+        rospy.logerr("Error reading samples")
 
 
 def calc_psd():
@@ -91,17 +92,22 @@ def calc_psd():
     rospy.Subscriber("sample_rate", UInt32, sample_rate_callback, psd)
     rospy.Subscriber("path_to_samples", String, path_to_samples_callback, psd)
 
-    # spin() simply keeps python from exiting until this node is stopped
-    # rospy.spin()
+    rate = rospy.Rate(10)  # 10hz
+
+    while not rospy.is_shutdown() and psd.sample_rate == 0:
+        rospy.logwarn("Waiting for topic to be published")
+        rate.sleep()
 
     # if args.plot:
     #     plt.ion()
-    rate = rospy.Rate(10)  # 10hz
+
     while not rospy.is_shutdown():
-        if len(psd.inbytes) > 10:
+        try:
             psd_vector = Float32MultiArray()
             f, psd_vector.data = psd.estimate_psd()
             pub.publish(psd_vector)
+        except:
+            rospy.logerr("Error estimate_psd")
 
         # if args.plot:
         #     plt.plot(f, psd_vector.data, hold=False)

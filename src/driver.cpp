@@ -195,7 +195,7 @@ int main(int argc, char **argv)
         }
 
         std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - last_publish;
-        if (elapsed_seconds.count() > 5.0)
+        if (elapsed_seconds.count() > 3.0)
         {
             std_msgs::UInt32 sample_rate, center_freq;
             sample_rate.data = rtl.getSampleRate();
