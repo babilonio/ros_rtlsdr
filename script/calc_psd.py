@@ -25,8 +25,8 @@ class bcolors:
 class PSDCalc(object):
     def __init__(self):
         self._fft_size = 1024
-        self._sample_rate = 1e6
-        self._inbytes = np.ones(self._fft_size * 2)
+        self._sample_rate = 0
+        self._inbytes = np.zeros(10)
 
     @property
     def sample_rate(self):
@@ -79,9 +79,9 @@ def path_to_samples_callback(data, psd):
 def calc_psd():
 
     # PARSE INPUT
-    parser = argparse.ArgumentParser(description='Calculate a signal PSD ')
-    parser.add_argument("--plot", help='show psd', action="store_true")
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser(description='Calculate a signal PSD ')
+    # parser.add_argument("--plot", help='show psd', action="store_true")
+    # args = parser.parse_args()
 
     pub = rospy.Publisher('center_freq_rms', Float32MultiArray, queue_size=10)
     pub = rospy.Publisher('psd', Float32MultiArray, queue_size=10)
@@ -94,18 +94,19 @@ def calc_psd():
     # spin() simply keeps python from exiting until this node is stopped
     # rospy.spin()
 
-    if args.plot:
-        plt.ion()
+    # if args.plot:
+    #     plt.ion()
     rate = rospy.Rate(10)  # 10hz
     while not rospy.is_shutdown():
-        psd_vector = Float32MultiArray()
-        f, psd_vector.data = psd.estimate_psd()
-        pub.publish(psd_vector)
+        if len(psd.inbytes) > 10:
+            psd_vector = Float32MultiArray()
+            f, psd_vector.data = psd.estimate_psd()
+            pub.publish(psd_vector)
 
-        if args.plot:
-            plt.plot(f, psd_vector.data, hold=False)
-            plt.ylim([-50, 20])
-            plt.pause(0.005)
+        # if args.plot:
+        #     plt.plot(f, psd_vector.data, hold=False)
+        #     plt.ylim([-50, 20])
+        #     plt.pause(0.005)
 
         rate.sleep()
 

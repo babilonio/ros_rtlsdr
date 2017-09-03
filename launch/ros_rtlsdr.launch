@@ -1,4 +1,4 @@
 <launch>
-  <node name="ros_rtlsdr_node" pkg="ros_rtlsdr" type="talker" />
-  <node name="iq_to_psd" pkg="ros_rtlsdr" type="converter" />
+  <node name="driver" pkg="ros_rtlsdr" type="driver" />
+  <node name="calc_psd" pkg="ros_rtlsdr" type="calc_psd.py" />
 </launch>
