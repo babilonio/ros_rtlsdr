@@ -26,6 +26,7 @@ class PSDCalc(object):
         self._fft_size = 1024
         self._sample_rate = 0
         self._inbytes = np.zeros(10)
+
     @property
     def sample_rate(self):
         return self._sample_rate
@@ -65,7 +66,7 @@ class PSDCalc(object):
 
 def sample_rate_callback(data, psd):
     psd.sample_rate = data.data
-    rospy.loginfo("%sample_rate_callback : %0.3fMHz%s",
+    rospy.loginfo("%ssample_rate_callback : %0.3fMHz%s",
                   bcolors.OKGREEN, psd.sample_rate / 1.0e6, bcolors.ENDC)
 
 
@@ -80,8 +81,12 @@ def calc_psd():
 
     # PARSE INPUT
     parser = argparse.ArgumentParser(description='Calculate a signal PSD ')
-    parser.add_argument("--plot", help='show psd', action="store_true")
-    args = parser.parse_args()
+    parser.add_argument("--plot", help='show psd', action="store_true", default=False)
+    try:
+        args = parser.parse_args(rospy.myargv()[1:])
+    except:
+        print bcolors.FAIL, "argparse error", bcolors.ENDC
+
 
     pub = rospy.Publisher('center_freq_rms', Float32MultiArray, queue_size=10)
     pub = rospy.Publisher('psd', Float32MultiArray, queue_size=10)

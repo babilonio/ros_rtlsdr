@@ -1,4 +1,5 @@
 <launch>
   <node name="driver" pkg="rosrtlsdr" type="driver" />
   <node name="calc_psd" pkg="rosrtlsdr" type="calc_psd.py" />
+  <node name="udp_bridge" pkg="rosrtlsdr" type="udp_bridge.py" />
 </launch>

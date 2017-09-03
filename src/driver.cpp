@@ -19,7 +19,7 @@ std::chrono::time_point<std::chrono::system_clock> last_publish;
 RtlSdr                                             rtl;
 int                                                N = 0x7FFF + 1;
 
-int                                                max_files   = 1;
+int                                                max_files   = 5;
 int                                                active_file = 0;
 
 ros::Publisher                                     pub_path;
