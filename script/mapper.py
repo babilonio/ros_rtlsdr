@@ -2,6 +2,10 @@
 import numpy as np
 from math import radians, cos, sin, asin, sqrt
 
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+
 
 def haversine(lat1, lon1, lat2, lon2):
     """
@@ -51,7 +55,7 @@ class Location(object):
 class MAP(object):
     def __init__(self):
         self._ref = Location(0, 0)
-        self._box_side_length = 1.0
+        self._box_side_length = 10
         self._height = 10
         self._width = 10
         self._grid = np.zeros((self._width, self._height))
@@ -92,21 +96,74 @@ class MAP(object):
             x, y = self.position(key)
             self._grid[int(x), int(y)] = value
 
-            print x, y, value
+    def interpolate(self):
+        m, n = datamap.grid.shape
+        again = True
+        while again:
+            print(bcolors.WARNING + "interpolating..."+ bcolors.ENDC)
+
+            again = False
+            interpolated = np.zeros((m, n))
+
+            for x in np.arange(0, m):
+                for y in np.arange(0, n):
+                    if self._grid[x, y] == 0:
+                        mgs = 4 # minigrid_size
+                        val, counter = 0, (mgs*2 + 1)*(mgs*2 + 1) - 1
+                        for i in np.arange(-mgs, mgs+1):
+                            for j in np.arange(-mgs, mgs+1):
+                                if (i != 0 or j != 0):
+                                    try:
+                                        if (self._grid[x + i, y + j] == 0) or (x + i < 0) or (y + j < 0):
+                                            counter = counter - 1
+                                        else:
+                                            val += self._grid[x + i, y + j]
+                                    except IndexError:
+                                        counter = counter - 1
+                        if counter > 0 and val != 0:
+                            interpolated[x, y] = val / counter
+                        if val == 0:
+                            again = True
+
+            self._grid += interpolated
 
 
 if __name__ == '__main__':
     data = {}
 
-    for i in range(10000):
+    for i in range(100000):
 
-        latitude = 36.73500 + np.random.rand(1).astype(float)[0] / 10000.0
-        longitude = -4.55400 + np.random.rand(1).astype(float)[0] / 10000.0
-        val = np.random.rand(1).astype(float)[0] * 100
+        latitude = 36.73500 + np.random.rand(1).astype(float)[0] / 100.0
+        longitude = -4.55400 + np.random.rand(1).astype(float)[0] / 100.0
+        #val = np.random.rand(1).astype(float)[0] * 100
+        val = haversine(36.73500, -4.55400, latitude, longitude)
         key = Location(latitude, longitude)
         value = val
         data.update({key: value})
 
     datamap = MAP()
     datamap.loadData(data)
-    print datamap.grid
+    datamap.interpolate()
+
+    plt.imshow(datamap.grid, cmap='hot', interpolation='none')
+    plt.show()
+
+    # m, n = datamap.grid.shape
+    # X = np.arange(0, m)
+    # Y = np.arange(0, n)
+    # X, Y = np.meshgrid(X, Y)
+    # Z = datamap.grid[X, Y]
+    #
+    # fig = plt.figure()
+    # ax = fig.add_subplot(1, 2, 1, projection='3d')
+    # surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm,
+    #                        linewidth=0, antialiased=False)
+    #
+    # ax = fig.add_subplot(1, 2, 2, projection='3d')
+    #
+    # datamap.interpolate()
+    # Z = datamap.grid[X, Y]
+    #
+    # surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm,
+    #                        linewidth=0, antialiased=False)
+    # plt.show()
