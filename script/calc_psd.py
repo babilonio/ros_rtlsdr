@@ -3,6 +3,9 @@ import rospy
 from std_msgs.msg import String
 from std_msgs.msg import UInt32
 from std_msgs.msg import Float32MultiArray
+from sensor_msgs.msg import NavSatFix
+
+from os.path import expanduser
 
 import argparse
 import time
@@ -26,6 +29,7 @@ class PSDCalc(object):
         self._fft_size = 1024
         self._sample_rate = 0
         self._inbytes = np.zeros(10)
+        self.location_str = "0.0_0.0"
 
     @property
     def sample_rate(self):
@@ -54,6 +58,8 @@ class PSDCalc(object):
 
         f, Pxx_den = signal.periodogram(
             samples, self._sample_rate, nfft=self._fft_size)
+        np.savetxt( expanduser("~") + "/catkin_ws/data/" + self.location_str,
+                   Pxx_den, delimiter=',')
 
         N = len(Pxx_den) / 2
         psd = 10 * np.log10(self._sample_rate *
@@ -62,6 +68,18 @@ class PSDCalc(object):
         rospy.loginfo("%sestimate_psd process time : %f%s",
                       bcolors.OKBLUE, time.time() - start, bcolors.ENDC)
         return nf, psd.astype(float)
+
+
+def location_callback(nav, psd):
+
+    latitude = nav.latitude
+    longitude = nav.longitude
+    altitude = nav.altitude
+
+    psd.location_str = str(latitude) + "_" + str(longitude)
+
+    rospy.loginfo("%slocation_callback : %s%s",
+                  bcolors.OKGREEN, psd.location_str, bcolors.ENDC)
 
 
 def sample_rate_callback(data, psd):
@@ -81,18 +99,20 @@ def calc_psd():
 
     # PARSE INPUT
     parser = argparse.ArgumentParser(description='Calculate a signal PSD ')
-    parser.add_argument("--plot", help='show psd', action="store_true", default=False)
+    parser.add_argument("--plot", help='show psd',
+                        action="store_true", default=False)
     try:
         args = parser.parse_args(rospy.myargv()[1:])
     except:
         print bcolors.FAIL, "argparse error", bcolors.ENDC
 
-
     pub = rospy.Publisher('center_freq_rms', Float32MultiArray, queue_size=10)
     pub = rospy.Publisher('psd', Float32MultiArray, queue_size=10)
     rospy.init_node('calc_psd', anonymous=True)
+
     psd = PSDCalc()
 
+    rospy.Subscriber("location", NavSatFix, location_callback, psd)
     rospy.Subscriber("sample_rate", UInt32, sample_rate_callback, psd)
     rospy.Subscriber("path_to_samples", String, path_to_samples_callback, psd)
 
