@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/animator-v21/circular_image_button_anim.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/animator-v21/circular_image_button_anim.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/animator-v21/design_appbar_state_list_animator.xml",
+        "source": "/home/babilonio/.android/build-cache/742e7612322017b88316192c0d2379b477fe160d/output/res/animator-v21/design_appbar_state_list_animator.xml"
+    }
+]

@@ -41,7 +41,7 @@ void mouseReleased() {
 }
 
 void sendMsg(String msg) {
-  String ip       = "192.168.0.159";  // the remote IP address
+  String ip       = "224.0.0.1";  // the remote IP address
   int port        = 6100;    // the destination port
 
   // send the message
@@ -104,7 +104,7 @@ void setup() {
   textAlign(CENTER, CENTER);
   textSize(36);
 
-  udp = new UDP( this, 6000 );
+  udp = new UDP( this, 6000, "224.0.0.1" );
   udp.log( true );     // <-- printout the connection activity
   udp.listen( true );
   sendMsg("EVN,STARTING");

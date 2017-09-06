@@ -1,0 +1,26 @@
+[
+    {
+        "outputFile": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-ldltr-v21/values-ldltr-v21.xml",
+        "map": [
+            {
+                "to": {
+                    "startLine": 2,
+                    "startColumn": 4,
+                    "startOffset": 55,
+                    "endColumn": 112,
+                    "endOffset": 163
+                },
+                "from": {
+                    "file": "/home/babilonio/.android/build-cache/711e76113ed32b6b202ba6eb1d6a099a53e35ee5/output/res/values-ldltr-v21/values-ldltr-v21.xml",
+                    "position": {
+                        "startLine": 2,
+                        "startColumn": 4,
+                        "startOffset": 55,
+                        "endColumn": 112,
+                        "endOffset": 163
+                    }
+                }
+            }
+        ]
+    }
+]

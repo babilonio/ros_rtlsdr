@@ -1,0 +1,30 @@
+[
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/anim-v21/open_on_phone_path_2_animation.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/anim-v21/open_on_phone_path_2_animation.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/anim-v21/generic_confirmation_icon_animation.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/anim-v21/generic_confirmation_icon_animation.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/anim-v21/design_bottom_sheet_slide_in.xml",
+        "source": "/home/babilonio/.android/build-cache/742e7612322017b88316192c0d2379b477fe160d/output/res/anim-v21/design_bottom_sheet_slide_in.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/anim-v21/design_bottom_sheet_slide_out.xml",
+        "source": "/home/babilonio/.android/build-cache/742e7612322017b88316192c0d2379b477fe160d/output/res/anim-v21/design_bottom_sheet_slide_out.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/anim-v21/open_on_phone_path_1_animation.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/anim-v21/open_on_phone_path_1_animation.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/anim-v21/generic_confirmation_generic_confirmation_animation.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/anim-v21/generic_confirmation_generic_confirmation_animation.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/anim-v21/open_on_phone_arrow_animation.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/anim-v21/open_on_phone_arrow_animation.xml"
+    }
+]

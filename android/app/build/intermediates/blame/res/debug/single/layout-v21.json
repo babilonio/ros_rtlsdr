@@ -1,0 +1,30 @@
+[
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/layout-v21/overlay_confirmation.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/layout-v21/overlay_confirmation.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/layout-v21/notification_template_custom_big.xml",
+        "source": "/home/babilonio/.android/build-cache/711e76113ed32b6b202ba6eb1d6a099a53e35ee5/output/res/layout-v21/notification_template_custom_big.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/layout-v21/accept_deny_dialog.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/layout-v21/accept_deny_dialog.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/layout-v21/notification_template_icon_group.xml",
+        "source": "/home/babilonio/.android/build-cache/711e76113ed32b6b202ba6eb1d6a099a53e35ee5/output/res/layout-v21/notification_template_icon_group.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/layout-v21/notification_action_tombstone.xml",
+        "source": "/home/babilonio/.android/build-cache/711e76113ed32b6b202ba6eb1d6a099a53e35ee5/output/res/layout-v21/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/layout-v21/dismiss_overlay.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/layout-v21/dismiss_overlay.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/layout-v21/notification_action.xml",
+        "source": "/home/babilonio/.android/build-cache/711e76113ed32b6b202ba6eb1d6a099a53e35ee5/output/res/layout-v21/notification_action.xml"
+    }
+]

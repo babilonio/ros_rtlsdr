@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/color-v11/abc_background_cache_hint_selector_material_light.xml",
+        "source": "/home/babilonio/.android/build-cache/711e76113ed32b6b202ba6eb1d6a099a53e35ee5/output/res/color-v11/abc_background_cache_hint_selector_material_light.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/color-v11/abc_background_cache_hint_selector_material_dark.xml",
+        "source": "/home/babilonio/.android/build-cache/711e76113ed32b6b202ba6eb1d6a099a53e35ee5/output/res/color-v11/abc_background_cache_hint_selector_material_dark.xml"
+    }
+]

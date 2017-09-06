@@ -1,0 +1,42 @@
+[
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/drawable-v23/ic_expand_less_white_22.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/drawable-v23/ic_expand_less_white_22.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/drawable-v23/ic_cc_settings_button_bottom.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/drawable-v23/ic_cc_settings_button_bottom.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/drawable-v23/abc_control_background_material.xml",
+        "source": "/home/babilonio/.android/build-cache/711e76113ed32b6b202ba6eb1d6a099a53e35ee5/output/res/drawable-v23/abc_control_background_material.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/drawable-v23/action_item_background.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/drawable-v23/action_item_background.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/drawable-v23/ic_cc_settings_button_center.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/drawable-v23/ic_cc_settings_button_center.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/drawable-v23/ic_more_horiz_24dp_wht.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/drawable-v23/ic_more_horiz_24dp_wht.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/drawable-v23/ic_cc_settings_button_top.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/drawable-v23/ic_cc_settings_button_top.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/drawable-v23/ic_cc_settings_button_e.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/drawable-v23/ic_cc_settings_button_e.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/drawable-v23/action_item_icon_background.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/drawable-v23/action_item_icon_background.xml"
+    },
+    {
+        "merged": "/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/res/merged/debug/drawable-v23/ic_more_vert_24dp_wht.xml",
+        "source": "/home/babilonio/.android/build-cache/39173fde16a5ffa298a90e4109117ea8145ff9bf/output/res/drawable-v23/ic_more_vert_24dp_wht.xml"
+    }
+]

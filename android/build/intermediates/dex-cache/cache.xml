@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="false"
+        jar="/home/babilonio/sketchbook/rtlsdrapp/android/app/libs/support-annotations-25.2.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.1"
+        sha1="4a5a82a027706397fff621b22fd6fa796e91d7c5">
+        <dex dex="/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/pre-dexed/debug/support-annotations-25.2.0_88cedd10dabb83b5a1eee3a6e57ab7003c4c5b6d.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/home/babilonio/sketchbook/rtlsdrapp/android/app/libs/processing-core.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.1"
+        sha1="c88da33bc2c08eb0a88c440187a764e25ef805ca">
+        <dex dex="/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/pre-dexed/debug/processing-core_e7c469b56eef63a688f5f649af682dcb94eadd1f.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/home/babilonio/sketchbook/rtlsdrapp/android/app/libs/Ketai.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.1"
+        sha1="fe947703067f35672c1fea4db396f7892098f579">
+        <dex dex="/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/pre-dexed/debug/Ketai_fdb37e562ca9f1722dc8ab962c5a43dc6212df3d.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/home/babilonio/sketchbook/rtlsdrapp/android/app/libs/udp.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.1"
+        sha1="e5718d44023e10571375335a80e356da408fc9f1">
+        <dex dex="/home/babilonio/sketchbook/rtlsdrapp/android/app/build/intermediates/pre-dexed/debug/udp_5fd2e2b6282f49d3433df75285f8d93b495003e6.jar" />
+    </item>
+
+</items>
