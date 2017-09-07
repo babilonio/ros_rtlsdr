@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import rospy
 from std_msgs.msg import UInt32
+from std_msgs.msg import Float32
 from std_msgs.msg import Float32MultiArray
 from sensor_msgs.msg import NavSatFix
 
@@ -35,6 +36,8 @@ def nowstr():
 class Wave(object):
     def __init__(self):
         self._vector = np.zeros(1024)
+        self.sample_rate = 1e6
+        self.center_freq = 102.8e6
 
     @property
     def vector(self):
@@ -45,15 +48,21 @@ class Wave(object):
         self._vector = v
 
     def genString(self):
-        w = self.vector / max(abs(self.vector))
+        w = self.vector /50# / max(abs(self.vector))
         s = ",".join(str(x) for x in list(w))
 
         return s
 
+def sample_rate_callback(data, wave):
+    wave.sample_rate = data.data
+
+def center_freq_callback(data, wave):
+    wave.center_freq = data.data
 
 def udp_bridge():
 
     pub_location = rospy.Publisher('location', NavSatFix, queue_size=10)
+    pub_bw = rospy.Publisher('selected_bandwidth', Float32, queue_size=10)
 
     rospy.init_node('udp_bridge', anonymous=True)
 
@@ -68,6 +77,8 @@ def udp_bridge():
     height, width = 0, 0
 
     rospy.Subscriber("psd", Float32MultiArray, psd_callback, wave)
+    rospy.Subscriber("sample_rate", UInt32, sample_rate_callback, wave)
+    rospy.Subscriber("center_freq", UInt32, center_freq_callback, wave)
 
     while not rospy.is_shutdown():
 
@@ -88,7 +99,11 @@ def udp_bridge():
                 my = float(msg[2])
                 print nowstr() + bcolors.OKGREEN + " X/Y : ", mx, my, bcolors.ENDC
             elif msg[0] == "PSD":
+                sock.sendto("FRE," + str(wave.sample_rate) + "," + str(wave.center_freq), addr)
                 sock.sendto("PSD," + wave.genString(), addr)
+                bw = Float32()
+                bw.data = float(msg[1])
+                pub_bw.publish(bw)
                 print nowstr() + bcolors.OKGREEN + " PSD ", msg[1], " requested", bcolors.ENDC
             elif msg[0] == "SCR":
                 height = int(msg[1])

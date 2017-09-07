@@ -40,7 +40,7 @@ bool set_center_freq(rosrtlsdr::ParamSet::Request  &req,
 
     std_msgs::UInt32 val;
     val.data = rtl.getCenterFreq();
-    pub_sample_rate.publish(val);
+    pub_center_freq.publish(val);
 
     ROS_INFO("sending back response error: [%d]", res.error);
     return true;

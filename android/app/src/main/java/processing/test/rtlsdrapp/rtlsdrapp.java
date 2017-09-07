@@ -1,25 +1,23 @@
 package processing.test.rtlsdrapp;
 
-import processing.core.*; 
-import processing.data.*; 
-import processing.event.*; 
-import processing.opengl.*; 
+import processing.core.*;
+import processing.data.*;
+import processing.event.*;
+import processing.opengl.*;
 
-import ketai.sensors.*; 
-import hypermedia.net.*; 
+import ketai.sensors.*;
+import hypermedia.net.*;
 
-import java.util.HashMap; 
-import java.util.ArrayList; 
-import java.io.File; 
-import java.io.BufferedReader; 
-import java.io.PrintWriter; 
-import java.io.InputStream; 
-import java.io.OutputStream; 
-import java.io.IOException; 
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.io.File;
+import java.io.BufferedReader;
+import java.io.PrintWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.IOException;
 
 public class rtlsdrapp extends PApplet {
-
-
 
 long last_sent, last_recv = 0;
 String server_st;
@@ -30,7 +28,22 @@ UDP udp;
 int xspacing = 2;   // How far apart should each horizontal location be spaced
 float[] yvalues = new float[1024];
 
-public void mouseReleased() {  
+float sample_rate = 1e6f;
+float center_freq = 102.8e6f;
+float df = sample_rate / yvalues.length;
+float bandwidth = 150e3f;
+
+int center_freq_x = 200 + yvalues.length/2 * xspacing;
+int left_marker_x = PApplet.parseInt(PApplet.parseFloat(center_freq_x) - bandwidth/(2*df));
+int right_marker_x = PApplet.parseInt(PApplet.parseFloat(center_freq_x) + bandwidth/(2*df));
+
+
+  public void mousePressed() {
+    bandwidthAdjust(mouseX, mouseY);
+
+  }
+
+public void mouseReleased() {
   bandwidthAdjust(mouseX, mouseY);
 
 }
@@ -68,11 +81,17 @@ public void receive( byte[] data ) {
         println(yvalues[500-1]);
       }
     }
+  else if (parts[0].equals("FRE")) {
+    sample_rate = Float.parseFloat(parts[1]);
+    df = sample_rate / yvalues.length;
+    center_freq = Float.parseFloat(parts[2]);
+  }
+
   last_recv = millis();
   server_st = "OK";
 }
 
-public String serverState() {  
+public String serverState() {
 
   if ( last_sent - last_recv > 1000)
     server_st = "DISCONECTED";
@@ -82,8 +101,8 @@ public String serverState() {
 
 
 public void setup() {
-  
-  orientation(LANDSCAPE);  
+
+  orientation(LANDSCAPE);
   //smooth();
   textAlign(CENTER, CENTER);
   textSize(36);
@@ -106,15 +125,18 @@ public void draw() {
     text("Location data is unavailable. \n" +
       "Please check your location settings.", 0, 0, width, height/3);
   else
-    text("Latitude: " + latitude + "\n" + 
-      "Longitude: " + longitude + "\n" + 
-      "Altitude: " + altitude + "\n" + 
-      "Provider: " + location.getProvider(), 0, 0, width, height/3);  
+    text("Latitude: " + latitude + "\n" +
+      "Longitude: " + longitude + "\n" +
+      "Altitude: " + altitude + "\n" +
+      "Provider: " + location.getProvider(), 0, 0, width, height/3);
 
   text("Server: \n" + serverState(), 100, 100, 300, 300);
 
+
+   sendMsg("PSD," + String.valueOf(bandwidth));
+
+
   delay(30);
-  sendMsg("PSD," + String.valueOf(bandwidth));
 }
 
 public void onLocationEvent(double _latitude, double _longitude, double _altitude)
@@ -131,21 +153,12 @@ public void onDestroy()
   super.onDestroy();
 }
 
-float sample_rate = 1e6f;
-float center_freq = 102.8f;
-float df = sample_rate / yvalues.length;
-float bandwidth = 150e3f;
-
-int center_freq_x = 200 + yvalues.length/2 * xspacing;
-int left_marker_x = PApplet.parseInt(PApplet.parseFloat(center_freq_x) - bandwidth/(2*df));
-int right_marker_x = PApplet.parseInt(PApplet.parseFloat(center_freq_x) + bandwidth/(2*df));
-
 public void bandwidthAdjust(int x, int y) {
   if ( y > height*2/3 || y < height*2/3 - 300) return;
 
   if (x > center_freq_x)
     bandwidth = (x - center_freq_x) * df *xspacing/2;
-  else 
+  else
   bandwidth = (center_freq_x - x)* df *xspacing/2;
 
   if (bandwidth > sample_rate) bandwidth = sample_rate;
@@ -179,9 +192,9 @@ public void renderGraph() {
 
 
   fill(0);
-  text( str(center_freq - sample_rate/(1e6f*2)) + " MHz", 200, height*2/3 + 250);
-  text(str(center_freq) + " MHz", center_freq_x, height*2/3 + 250);
-  text(str(center_freq + sample_rate/(1e6f*2)) + " MHz", 200 + yvalues.length*xspacing, height*2/3 + 250);
+  text( str(center_freq/1e6f - sample_rate/(1e6f*2)) + " MHz", 250, height*2/3 + 250);
+  text(str(center_freq/1e6f) + " MHz", center_freq_x, height*2/3 + 250);
+  text(str(center_freq/1e6f + sample_rate/(1e6f*2)) + " MHz", 200 + yvalues.length*xspacing, height*2/3 + 250);
 }
   public void settings() {  fullScreen(); }
 }
