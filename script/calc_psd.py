@@ -2,10 +2,10 @@
 import rospy
 from std_msgs.msg import String
 from std_msgs.msg import UInt32
+from std_msgs.msg import Float32
 from std_msgs.msg import Float32MultiArray
 from sensor_msgs.msg import NavSatFix
 
-from os.path import expanduser
 
 import argparse
 import time
@@ -29,7 +29,8 @@ class PSDCalc(object):
         self._fft_size = 1024
         self._sample_rate = 0
         self._inbytes = np.zeros(10)
-        self.location_str = "0.0_0.0"
+        self.selected_bandwidth = 150e3
+        self.estimated_power = 0.0
 
     @property
     def sample_rate(self):
@@ -58,8 +59,13 @@ class PSDCalc(object):
 
         f, Pxx_den = signal.welch(
             samples, self._sample_rate, nperseg=self._fft_size)
-        np.savetxt( expanduser("~") + "/catkin_ws/data/" + self.location_str,
-                   Pxx_den, delimiter=',')
+
+        bw = (self.selected_bandwidth / self.sample_rate) * self._fft_size
+        power_window = sum(
+            self._sample_rate * Pxx_den[:bw / 2]) + sum(self._sample_rate * Pxx_den[-bw / 2:])
+        rospy.loginfo("%sestimated_power : %f%s",
+                      bcolors.OKBLUE, 10 * np.log10(power_window), bcolors.ENDC)
+        self.estimated_power = 10 * np.log10(power_window)
 
         N = len(Pxx_den) / 2
         psd = 10 * np.log10(self._sample_rate *
@@ -69,17 +75,10 @@ class PSDCalc(object):
                       bcolors.OKBLUE, time.time() - start, bcolors.ENDC)
         return nf, psd.astype(float)
 
-
-def location_callback(nav, psd):
-
-    latitude = nav.latitude
-    longitude = nav.longitude
-    altitude = nav.altitude
-
-    psd.location_str = str(latitude) + "_" + str(longitude)
-
-    rospy.loginfo("%slocation_callback : %s%s",
-                  bcolors.OKGREEN, psd.location_str, bcolors.ENDC)
+def selected_bandwidth_callback(data, psd):
+    psd.selected_bandwidth = data.data
+    rospy.loginfo("%selected_bandwidth_callback : %0.3fKHz%s",
+                  bcolors.OKGREEN, psd.selected_bandwidth / 1.0e3, bcolors.ENDC)
 
 
 def sample_rate_callback(data, psd):
@@ -106,13 +105,13 @@ def calc_psd():
     except:
         print bcolors.FAIL, "argparse error", bcolors.ENDC
 
-    pub = rospy.Publisher('center_freq_rms', Float32MultiArray, queue_size=10)
+    pub_pow = rospy.Publisher('estimated_power', Float32, queue_size=10)
     pub = rospy.Publisher('psd', Float32MultiArray, queue_size=10)
     rospy.init_node('calc_psd', anonymous=True)
 
     psd = PSDCalc()
-
-    rospy.Subscriber("location", NavSatFix, location_callback, psd)
+    rospy.Subscriber("selected_bandwidth", Float32,
+                     selected_bandwidth_callback, psd)
     rospy.Subscriber("sample_rate", UInt32, sample_rate_callback, psd)
     rospy.Subscriber("path_to_samples", String, path_to_samples_callback, psd)
 
@@ -131,6 +130,7 @@ def calc_psd():
             psd_vector = Float32MultiArray()
             f, psd_vector.data = psd.estimate_psd()
             pub.publish(psd_vector)
+            pub_pow.publish(psd.estimated_power)
         except:
             rospy.logerr("Error estimate_psd")
 

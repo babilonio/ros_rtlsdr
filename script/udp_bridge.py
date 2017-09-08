@@ -38,6 +38,7 @@ class Wave(object):
         self._vector = np.zeros(1024)
         self.sample_rate = 1e6
         self.center_freq = 102.8e6
+        self.estimated_power = 0.0
 
     @property
     def vector(self):
@@ -48,16 +49,23 @@ class Wave(object):
         self._vector = v
 
     def genString(self):
-        w = self.vector /50# / max(abs(self.vector))
+        w = self.vector / 48  # / max(abs(self.vector))
         s = ",".join(str(x) for x in list(w))
 
         return s
 
+
 def sample_rate_callback(data, wave):
     wave.sample_rate = data.data
 
+
 def center_freq_callback(data, wave):
     wave.center_freq = data.data
+
+
+def estimated_power_callback(data, wave):
+    wave.estimated_power = data.data
+
 
 def udp_bridge():
 
@@ -79,6 +87,8 @@ def udp_bridge():
     rospy.Subscriber("psd", Float32MultiArray, psd_callback, wave)
     rospy.Subscriber("sample_rate", UInt32, sample_rate_callback, wave)
     rospy.Subscriber("center_freq", UInt32, center_freq_callback, wave)
+    rospy.Subscriber("estimated_power", Float32,
+                     estimated_power_callback, wave)
 
     while not rospy.is_shutdown():
 
@@ -99,7 +109,9 @@ def udp_bridge():
                 my = float(msg[2])
                 print nowstr() + bcolors.OKGREEN + " X/Y : ", mx, my, bcolors.ENDC
             elif msg[0] == "PSD":
-                sock.sendto("FRE," + str(wave.sample_rate) + "," + str(wave.center_freq), addr)
+                sock.sendto("FRE," + str(wave.sample_rate) +
+                            "," + str(wave.center_freq), addr)
+                sock.sendto("POW," + str(wave.estimated_power), addr)
                 sock.sendto("PSD," + wave.genString(), addr)
                 bw = Float32()
                 bw.data = float(msg[1])

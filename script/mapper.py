@@ -1,4 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+import rospy
+from std_msgs.msg import Float32
+from sensor_msgs.msg import NavSatFix
+
+import time
+from os.path import expanduser
 import numpy as np
 from math import radians, cos, sin, asin, sqrt
 
@@ -100,7 +106,7 @@ class MAP(object):
         m, n = datamap.grid.shape
         again = True
         while again:
-            print(bcolors.WARNING + "interpolating..."+ bcolors.ENDC)
+            print(bcolors.WARNING + "interpolating..." + bcolors.ENDC)
 
             again = False
             interpolated = np.zeros((m, n))
@@ -108,10 +114,10 @@ class MAP(object):
             for x in np.arange(0, m):
                 for y in np.arange(0, n):
                     if self._grid[x, y] == 0:
-                        mgs = 4 # minigrid_size
-                        val, counter = 0, (mgs*2 + 1)*(mgs*2 + 1) - 1
-                        for i in np.arange(-mgs, mgs+1):
-                            for j in np.arange(-mgs, mgs+1):
+                        mgs = 4  # minigrid_size
+                        val, counter = 0, (mgs * 2 + 1) * (mgs * 2 + 1) - 1
+                        for i in np.arange(-mgs, mgs + 1):
+                            for j in np.arange(-mgs, mgs + 1):
                                 if (i != 0 or j != 0):
                                     try:
                                         if (self._grid[x + i, y + j] == 0) or (x + i < 0) or (y + j < 0):
@@ -128,25 +134,76 @@ class MAP(object):
             self._grid += interpolated
 
 
-if __name__ == '__main__':
-    data = {}
+class Node(object):
+    def __init__(self):
+        self.data = {}
+        self.value = 0
 
-    for i in range(100000):
+    def estimated_power_callback(self, data):
+        self.value = data.data
 
-        latitude = 36.73500 + np.random.rand(1).astype(float)[0] / 100.0
-        longitude = -4.55400 + np.random.rand(1).astype(float)[0] / 100.0
-        #val = np.random.rand(1).astype(float)[0] * 100
-        val = haversine(36.73500, -4.55400, latitude, longitude)
+    def location_callback(self, nav):
+
+        latitude = nav.latitude
+        longitude = nav.longitude
+
         key = Location(latitude, longitude)
-        value = val
-        data.update({key: value})
 
-    datamap = MAP()
-    datamap.loadData(data)
-    datamap.interpolate()
+        rospy.loginfo("%slocation_callback, {[%f,%f], %f}%s",
+                      bcolors.OKGREEN, latitude, longitude, self.value, bcolors.ENDC)
 
-    plt.imshow(datamap.grid, cmap='hot', interpolation='none')
-    plt.show()
+        self.data.update({key: self.value})
+
+    def mapper(self):
+
+        rospy.init_node('mapper', anonymous=True)
+
+        rospy.Subscriber("location", NavSatFix, self.location_callback)
+        rospy.Subscriber("estimated_power", Float32,
+                         self.estimated_power_callback)
+
+        lastsave = time.time()
+
+        rate = rospy.Rate(10)  # 10hz
+        while not rospy.is_shutdown():
+
+            if(time.time() - lastsave > 10):
+                lastsave = time.time()
+
+                rospy.loginfo("%sSaving data, n : %d%s",
+                              bcolors.OKBLUE, len(self.data.keys()), bcolors.ENDC)
+
+                np.save(expanduser("~") + "/catkin_ws/data/data.npy", self.data)
+
+            rate.sleep()
+
+
+if __name__ == '__main__':
+    try:
+        m = Node()
+        m.mapper()
+    except rospy.ROSInterruptException:
+        pass
+
+    # data = {}
+    # for i in range(1000):
+    #
+    #     latitude = 36.73500 + np.random.rand(1).astype(float)[0] / 100.0
+    #     longitude = -4.55400 + np.random.rand(1).astype(float)[0] / 100.0
+    #     #val = np.random.rand(1).astype(float)[0] * 100
+    #     val = haversine(36.73500, -4.55400, latitude, longitude)
+    #     key = Location(latitude, longitude)
+    #     value = val
+    #     data.update({key: value})
+    #
+    # np.save('data.npy', data)
+    # datap = np.load('data.npy').item()
+    # datamap = MAP()
+    # datamap.loadData(datap)
+    # datamap.interpolate()
+    #
+    # plt.imshow(datamap.grid, cmap='hot', interpolation='none')
+    # plt.show()
 
     # m, n = datamap.grid.shape
     # X = np.arange(0, m)
