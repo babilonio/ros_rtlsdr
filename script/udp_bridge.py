@@ -63,19 +63,19 @@ class Bridge(object):
     def sample_rate_callback(self, data):
         self.sample_rate = data.data
         if self.addr != None:
-            self.sock.sendto("SRT," + str(self.sample_rate), self.addr)
+            self.sock.sendto("SRT," + str(self.sample_rate/1e6), self.addr)
 
 
     def center_freq_callback(self, data):
         self.center_freq = data.data
         if self.addr != None:
-            self.sock.sendto("CFQ," + str(self.center_freq), self.addr)
+            self.sock.sendto("CFQ," + str(self.center_freq/1e6), self.addr)
 
 
     def estimated_power_callback(self, data):
         self.estimated_power = data.data
         if self.addr != None:
-            self.sock.sendto("POW," + str(self.estimated_power) + " dB", self.addr)
+            self.sock.sendto("POW," + str(int(10*self.estimated_power)/10.0) + " dB", self.addr)
 
 
 def call_set_sample_rate(sr):
@@ -89,6 +89,7 @@ def call_set_sample_rate(sr):
 
 
 def call_set_center_freq(cf):
+
     rospy.wait_for_service('set_center_freq')
     try:
         set_center_freq = rospy.ServiceProxy('set_center_freq', ParamSet)
@@ -141,13 +142,13 @@ def udp_bridge():
 
             elif msg[0] == "BWL":
                 print nowstr() + bcolors.OKGREEN + " BWL ", msg[1], bcolors.ENDC
-                bw = Float32()
+                bw = UInt32()
                 bw.data = float(msg[1])
                 pub_bwl.publish(bw)
 
             elif msg[0] == "BWR":
                 print nowstr() + bcolors.OKGREEN + " BWR ", msg[1], bcolors.ENDC
-                bw = Float32()
+                bw = UInt32()
                 bw.data = float(msg[1])
                 pub_bwr.publish(bw)
 
@@ -160,14 +161,12 @@ def udp_bridge():
 
             elif msg[0] == "SSR":
                 print nowstr() + bcolors.OKGREEN + " SSR : ", msg[1], bcolors.ENDC
-                sr = UInt32()
-                sr.data = int(msg[1])
+                sr = int(float(msg[1])*1e6)
                 call_set_sample_rate(sr)
 
             elif msg[0] == "SCF":
                 print nowstr() + bcolors.OKGREEN + " SCF : ", msg[1], bcolors.ENDC
-                cf = UInt32()
-                cf.data = int(msg[1])
+                cf = int(float(msg[1])*1e6)
                 call_set_center_freq(cf)
 
             else:

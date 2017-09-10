@@ -17,7 +17,7 @@ std::chrono::time_point<std::chrono::system_clock> start, end;
 std::chrono::time_point<std::chrono::system_clock> last_publish;
 
 RtlSdr                                             rtl;
-int                                                N = 0x7FFF + 1;
+int                                                N = 0xFFFE + 1;
 
 int                                                max_files   = 5;
 int                                                active_file = 0;

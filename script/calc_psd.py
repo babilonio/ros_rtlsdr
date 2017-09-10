@@ -29,8 +29,8 @@ class PSDCalc(object):
         self._fft_size = 1024
         self._sample_rate = 0
         self._inbytes = np.zeros(10)
-        self.selected_bandwidth_left = 512
-        self.selected_bandwidth_right = 512
+        self.sbwl = 512
+        self.sbwr = 512
         self.estimated_power = 0.0
 
     @property
@@ -58,16 +58,17 @@ class PSDCalc(object):
         samples.real = (self._inbytes[::2] - norm) / 128.0
         samples.imag = (self._inbytes[1::2] - norm) / 128.0
 
-        f, Pxx_den = signal.periodogram(
-            samples, self._sample_rate, nfft=self._fft_size)
+        f, Pxx_den = signal.welch(
+            samples, self._sample_rate, nperseg=self._fft_size)
 
         N = len(Pxx_den) / 2
         psd = 10 * np.log10(self._sample_rate *
                             np.concatenate((Pxx_den[N:], Pxx_den[1:N])))
         nf = np.concatenate((f[N:], f[1:N]))
 
-        if(bw_l > bw_r):
-            power_window = sum(self._sample_rate * Pxx_den[bw_l:bw_r])
+        if(self.sbwr > self.sbwl):
+            power_window = sum(
+                self._sample_rate * Pxx_den[self.sbwl:self.sbwr])
 
             rospy.loginfo("%sestimated_power : %f%s",
                           bcolors.OKBLUE, 10 * np.log10(power_window), bcolors.ENDC)
@@ -79,15 +80,15 @@ class PSDCalc(object):
 
 
 def selected_bandwidth_left_callback(data, psd):
-    psd.selected_bandwidth_left = data.data
+    psd.sbwl = data.data
     rospy.loginfo("%sselected_bandwidth_left_callback : %d%s",
-                  bcolors.OKGREEN, psd.selected_bandwidth_left, bcolors.ENDC)
+                  bcolors.OKGREEN, psd.sbwl, bcolors.ENDC)
 
 
 def selected_bandwidth_right_callback(data, psd):
-    psd.selected_bandwidth_right = data.data
+    psd.sbwr = data.data
     rospy.loginfo("%sselected_bandwidth_right_callback : %d%s",
-                  bcolors.OKGREEN, psd.selected_bandwidth_right, bcolors.ENDC)
+                  bcolors.OKGREEN, psd.sbwr, bcolors.ENDC)
 
 
 def sample_rate_callback(data, psd):
