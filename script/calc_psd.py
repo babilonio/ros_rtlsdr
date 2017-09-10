@@ -57,8 +57,8 @@ class PSDCalc(object):
         samples.real = (self._inbytes[::2] - norm) / 128.0
         samples.imag = (self._inbytes[1::2] - norm) / 128.0
 
-        f, Pxx_den = signal.welch(
-            samples, self._sample_rate, nperseg=self._fft_size)
+        f, Pxx_den = signal.periodogram(
+            samples, self._sample_rate, nfft=self._fft_size)
 
         bw = (self.selected_bandwidth / self.sample_rate) * self._fft_size
         power_window = sum(
