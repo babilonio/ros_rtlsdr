@@ -67,13 +67,14 @@ class PSDCalc(object):
             samples, self._sample_rate, nperseg=self._fft_size)
 
         N = len(Pxx_den) / 2
-        psd = 10 * np.log10(self._sample_rate *
-                            np.concatenate((Pxx_den[N:], Pxx_den[1:N])))
+        nPxx = np.concatenate((Pxx_den[N:], Pxx_den[1:N]))
         nf = np.concatenate((f[N:], f[1:N]))
+
+        psd = 10 * np.log10(self._sample_rate *nPxx)
 
         if(self.sbwr > self.sbwl):
             power_window = sum(
-                self._sample_rate * Pxx_den[self.sbwl:self.sbwr])
+                self._sample_rate * nPxx[self.sbwl:self.sbwr])
 
             rospy.loginfo("%sestimated_power : %f%s",
                           bcolors.OKBLUE, 10 * np.log10(power_window), bcolors.ENDC)
