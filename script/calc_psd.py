@@ -6,7 +6,7 @@ from std_msgs.msg import Float32
 from std_msgs.msg import Float32MultiArray
 from sensor_msgs.msg import NavSatFix
 
-
+from threading import Lock
 import argparse
 import time
 import numpy as np
@@ -32,6 +32,7 @@ class PSDCalc(object):
         self.sbwl = 512
         self.sbwr = 512
         self.estimated_power = 0.0
+        self.lock = Lock()
 
     @property
     def sample_rate(self):
@@ -47,17 +48,21 @@ class PSDCalc(object):
 
     @inbytes.setter
     def inbytes(self, inb):
+        self.lock.acquire()
         self._inbytes = inb
+        self.lock.release()
         # T = len(_inbytes)/(2.0*sample_rate)
 
     def estimate_psd(self):
         start = time.time()
+
+        self.lock.acquire()
         norm = np.empty(len(self._inbytes) // 2)
         norm.fill(128)
         samples = np.empty(len(self._inbytes) // 2, 'complex')
         samples.real = (self._inbytes[::2] - norm) / 128.0
         samples.imag = (self._inbytes[1::2] - norm) / 128.0
-
+        self.lock.release()
         f, Pxx_den = signal.welch(
             samples, self._sample_rate, nperseg=self._fft_size)
 
