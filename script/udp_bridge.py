@@ -102,9 +102,9 @@ def udp_bridge():
 
     pub_location = rospy.Publisher('location', NavSatFix, queue_size=10)
     pub_bwl = rospy.Publisher(
-        'selected_bandwidth_left', Float32, queue_size=10)
+        'selected_bandwidth_left', UInt32, queue_size=10)
     pub_bwr = rospy.Publisher(
-        'selected_bandwidth_right', Float32, queue_size=10)
+        'selected_bandwidth_right', UInt32, queue_size=10)
 
     rospy.init_node('udp_bridge', anonymous=True)
 

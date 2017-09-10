@@ -29,7 +29,8 @@ class PSDCalc(object):
         self._fft_size = 1024
         self._sample_rate = 0
         self._inbytes = np.zeros(10)
-        self.selected_bandwidth = 150e3
+        self.selected_bandwidth_left = 512
+        self.selected_bandwidth_right = 512
         self.estimated_power = 0.0
 
     @property
@@ -60,25 +61,33 @@ class PSDCalc(object):
         f, Pxx_den = signal.periodogram(
             samples, self._sample_rate, nfft=self._fft_size)
 
-        bw = (self.selected_bandwidth / self.sample_rate) * self._fft_size
-        power_window = sum(
-            self._sample_rate * Pxx_den[:bw / 2]) + sum(self._sample_rate * Pxx_den[-bw / 2:])
-        rospy.loginfo("%sestimated_power : %f%s",
-                      bcolors.OKBLUE, 10 * np.log10(power_window), bcolors.ENDC)
-        self.estimated_power = 10 * np.log10(power_window)
-
         N = len(Pxx_den) / 2
         psd = 10 * np.log10(self._sample_rate *
                             np.concatenate((Pxx_den[N:], Pxx_den[1:N])))
         nf = np.concatenate((f[N:], f[1:N]))
+
+        if(bw_l > bw_r):
+            power_window = sum(self._sample_rate * Pxx_den[bw_l:bw_r])
+
+            rospy.loginfo("%sestimated_power : %f%s",
+                          bcolors.OKBLUE, 10 * np.log10(power_window), bcolors.ENDC)
+            self.estimated_power = 10 * np.log10(power_window)
+
         rospy.loginfo("%sestimate_psd process time : %f%s",
                       bcolors.OKBLUE, time.time() - start, bcolors.ENDC)
         return nf, psd.astype(float)
 
-def selected_bandwidth_callback(data, psd):
-    psd.selected_bandwidth = data.data
-    rospy.loginfo("%selected_bandwidth_callback : %0.3fKHz%s",
-                  bcolors.OKGREEN, psd.selected_bandwidth / 1.0e3, bcolors.ENDC)
+
+def selected_bandwidth_left_callback(data, psd):
+    psd.selected_bandwidth_left = data.data
+    rospy.loginfo("%sselected_bandwidth_left_callback : %d%s",
+                  bcolors.OKGREEN, psd.selected_bandwidth_left, bcolors.ENDC)
+
+
+def selected_bandwidth_right_callback(data, psd):
+    psd.selected_bandwidth_right = data.data
+    rospy.loginfo("%sselected_bandwidth_right_callback : %d%s",
+                  bcolors.OKGREEN, psd.selected_bandwidth_right, bcolors.ENDC)
 
 
 def sample_rate_callback(data, psd):
@@ -110,8 +119,10 @@ def calc_psd():
     rospy.init_node('calc_psd', anonymous=True)
 
     psd = PSDCalc()
-    rospy.Subscriber("selected_bandwidth", Float32,
-                     selected_bandwidth_callback, psd)
+    rospy.Subscriber("selected_bandwidth_left", UInt32,
+                     selected_bandwidth_left_callback, psd)
+    rospy.Subscriber("selected_bandwidth_right", UInt32,
+                     selected_bandwidth_right_callback, psd)
     rospy.Subscriber("sample_rate", UInt32, sample_rate_callback, psd)
     rospy.Subscriber("path_to_samples", String, path_to_samples_callback, psd)
 
