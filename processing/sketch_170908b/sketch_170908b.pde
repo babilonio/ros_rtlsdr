@@ -67,6 +67,9 @@ public void setup() {
 
 public void draw() {
 
+  if (location == null)
+    location = new KetaiLocation(this);
+
   background(#E1E1E5);
   stroke(0);
   strokeWeight(2);

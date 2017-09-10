@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import rospy
+from std_msgs.msg import Int16
 from std_msgs.msg import UInt32
 from std_msgs.msg import Float32
 from std_msgs.msg import Float32MultiArray
@@ -36,8 +37,8 @@ class Bridge(object):
         self.sample_rate = 1e6
         self.center_freq = 102.8e6
         self.estimated_power = 0.0
-        self.sock = None;
-        self.addr = None;
+        self.sock = None
+        self.addr = None
 
     @property
     def vector(self):
@@ -53,29 +54,26 @@ class Bridge(object):
 
         return s
 
-
     def psd_callback(self, data):
         self.vector = np.array(data.data).astype(float)
         if self.addr != None:
             self.sock.sendto("PSD," + self.genString(), self.addr)
 
-
     def sample_rate_callback(self, data):
         self.sample_rate = data.data
         if self.addr != None:
-            self.sock.sendto("SRT," + str(self.sample_rate/1e6), self.addr)
-
+            self.sock.sendto("SRT," + str(self.sample_rate / 1e6), self.addr)
 
     def center_freq_callback(self, data):
         self.center_freq = data.data
         if self.addr != None:
-            self.sock.sendto("CFQ," + str(self.center_freq/1e6), self.addr)
-
+            self.sock.sendto("CFQ," + str(self.center_freq / 1e6), self.addr)
 
     def estimated_power_callback(self, data):
         self.estimated_power = data.data
         if self.addr != None:
-            self.sock.sendto("POW," + str(int(10*self.estimated_power)/10.0) + " dB", self.addr)
+            self.sock.sendto(
+                "POW," + str(int(10 * self.estimated_power) / 10.0) + " dB", self.addr)
 
 
 def call_set_sample_rate(sr):
@@ -101,6 +99,7 @@ def call_set_center_freq(cf):
 
 def udp_bridge():
 
+    pub_mapping = rospy.Publisher('mapping', Int16, queue_size=10)
     pub_location = rospy.Publisher('location', NavSatFix, queue_size=10)
     pub_bwl = rospy.Publisher(
         'selected_bandwidth_left', UInt32, queue_size=10)
@@ -114,7 +113,7 @@ def udp_bridge():
     UDP_IP = "224.0.0.1"
     UDP_PORT = 6100
     bridge.sock = socket.socket(socket.AF_INET,  # Internet
-                         socket.SOCK_DGRAM)  # UDP
+                                socket.SOCK_DGRAM)  # UDP
     bridge.sock.bind((UDP_IP, UDP_PORT))
 
     lat, lon, alt = 0, 0, 0
@@ -123,17 +122,19 @@ def udp_bridge():
     rospy.Subscriber("psd", Float32MultiArray, bridge.psd_callback)
     rospy.Subscriber("sample_rate", UInt32, bridge.sample_rate_callback)
     rospy.Subscriber("center_freq", UInt32, bridge.center_freq_callback)
-    rospy.Subscriber("estimated_power", Float32, bridge.estimated_power_callback)
+    rospy.Subscriber("estimated_power", Float32,
+                     bridge.estimated_power_callback)
 
     while not rospy.is_shutdown():
 
-        data, bridge.addr = bridge.sock.recvfrom(1024)  # buffer size is 1024 bytes
+        data, bridge.addr = bridge.sock.recvfrom(
+            1024)  # buffer size is 1024 bytes
         msg = data.split(',')
         bridge.sock.sendto("ACK", bridge.addr)
 
         try:
             if msg[0] == "LOC":
-                print nowstr() + bcolors.OKBLUE + " Location : ", nav.latitude, nav.longitude, nav.altitude, bcolors.ENDC
+                print nowstr() + bcolors.OKGREEN + " Location : ", msg[1], msg[2], msg[3], bcolors.ENDC
                 nav = NavSatFix()
                 nav.latitude = float(msg[1])
                 nav.longitude = float(msg[2])
@@ -152,22 +153,21 @@ def udp_bridge():
                 bw.data = float(msg[1])
                 pub_bwr.publish(bw)
 
-            # elif msg[0] == "PSD":
-            #     print nowstr() + bcolors.OKGREEN + " PSD ", msg[1], " requested", bcolors.ENDC
-            #     sock.sendto("CFQ," + str(wave.center_freq), addr)
-            #     sock.sendto("SRT," + str(wave.sample_rate), addr)
-            #     sock.sendto("POW," + str(wave.estimated_power) + " dB", addr)
-            #     sock.sendto("PSD," + wave.genString(), addr)
-
             elif msg[0] == "SSR":
                 print nowstr() + bcolors.OKGREEN + " SSR : ", msg[1], bcolors.ENDC
-                sr = int(float(msg[1])*1e6)
+                sr = int(float(msg[1]) * 1e6)
                 call_set_sample_rate(sr)
 
             elif msg[0] == "SCF":
                 print nowstr() + bcolors.OKGREEN + " SCF : ", msg[1], bcolors.ENDC
-                cf = int(float(msg[1])*1e6)
+                cf = int(float(msg[1]) * 1e6)
                 call_set_center_freq(cf)
+
+            elif msg[0] == "MAP":
+                print nowstr() + bcolors.OKGREEN + " MAP : ", msg[1], bcolors.ENDC
+                m = Int16()
+                m.data = int(msg[1])
+                pub_mapping.publish(m)
 
             else:
                 print nowstr() + bcolors.WARNING + " Received : ", data, bcolors.ENDC

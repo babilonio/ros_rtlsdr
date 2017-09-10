@@ -16,6 +16,7 @@ public void mousePressed() {
   if (mouseX - checkBoxMap.getX() < checkBoxMap.getSX() && mouseX > checkBoxMap.getX()
     && mouseY - checkBoxMap.getY() < checkBoxMap.getSY()  && mouseY > checkBoxMap.getY()) {
     checkBoxMap.toggle();
+    sendMsg("MAP,"+str(int(checkBoxMap.isChecked())));
   } 
 
   if (activeButton != null) {

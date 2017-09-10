@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import rospy
+from std_msgs.msg import Int16
 from std_msgs.msg import Float32
 from sensor_msgs.msg import NavSatFix
 
@@ -138,9 +139,13 @@ class Node(object):
     def __init__(self):
         self.data = {}
         self.value = 0
+        self.mapping = 0
 
     def estimated_power_callback(self, data):
         self.value = data.data
+
+    def mapping_callback(self, data):
+        self.mapping = data.data
 
     def location_callback(self, nav):
 
@@ -158,6 +163,7 @@ class Node(object):
 
         rospy.init_node('mapper', anonymous=True)
 
+        rospy.Subscriber("mapping", Int16, self.mapping_callback)
         rospy.Subscriber("location", NavSatFix, self.location_callback)
         rospy.Subscriber("estimated_power", Float32,
                          self.estimated_power_callback)
@@ -167,13 +173,17 @@ class Node(object):
         rate = rospy.Rate(10)  # 10hz
         while not rospy.is_shutdown():
 
-            if(time.time() - lastsave > 10):
-                lastsave = time.time()
+            if(self.mapping):
+                if(time.time() - lastsave > 10):
+                    lastsave = time.time()
 
-                rospy.loginfo("%sSaving data, n : %d%s",
-                              bcolors.OKBLUE, len(self.data.keys()), bcolors.ENDC)
+                    rospy.loginfo("%sSaving data, n : %d%s",
+                                  bcolors.OKBLUE, len(self.data.keys()), bcolors.ENDC)
 
-                np.save(expanduser("~") + "/catkin_ws/data/data.npy", self.data)
+                    np.save(expanduser("~") + "/catkin_ws/data/data.npy", self.data)
+            else:
+                rospy.loginfo("%sNothing to do...%s",
+                              bcolors.OKBLUE, bcolors.ENDC)
 
             rate.sleep()
 

@@ -5,16 +5,18 @@ float[] yvalues = new float[NFFT];
 int bw_l;
 int bw_r;
 float bw;
-float sample_rate = 2.4e6;
+float sample_rate = 2.0;
 String estimated = "0.0 dB";
+
+String activeMarker = "none";
 
 private void renderGraph() {
 
   stroke(#2B59A5);
   strokeWeight(3);
   for (int x = 1; x < yvalues.length - 1; x++) {
-    line(axisX.getX1() + (x - 1) * axisX.getSpacing(), axisY.getY1() - 480 * yvalues[x - 1], 
-      axisX.getX1() + + (x) * axisX.getSpacing(), axisY.getY1() - 480 * yvalues[x]);
+    line(axisX.getX1() + (x - 1) * axisX.getSpacing(), axisY.getY1() - axisY.getLength() * yvalues[x - 1], 
+      axisX.getX1() + + (x) * axisX.getSpacing(), axisY.getY1() - axisY.getLength() * yvalues[x]);
   }
 }
 
@@ -23,23 +25,35 @@ private void renderBW() {
   stroke(255, 255, 128, 0);
 
   if (mousePressed) {
-    if ( mouseY - axisY.getY1() < axisY.getLength() && mouseY > axisY.getY1() ) {   
-      if ( mouseX - axisX.getX1() < axisX.getLength()/2 && mouseX > axisX.getX1() ) {
+    if ( mouseY - axisY.getY1() < axisY.getLength() && mouseY > axisY.getY1()    
+      && mouseX - axisX.getX1() < axisX.getLength() && mouseX > axisX.getX1() ) {
+      if (mouseX < leftMarker) {
         leftMarker = mouseX;
-        bw_l = int((axisX.getCenter() - leftMarker)/axisX.getSpacing());
-        sendMsg("BWL,"+ str(bw_l));
-      } else if ( mouseX - axisX.getX1() < axisX.getLength() && mouseX > axisX.getX1() ) {
-        rightMarker = mouseX;   
-        bw_r = int((rightMarker - axisX.getCenter())/axisX.getSpacing());
-        sendMsg("BWR,"+ str(bw_r));
+      } else if (mouseX > rightMarker) {
+        rightMarker = mouseX;
+      } else {
+        if (activeMarker == "left") {
+          leftMarker = mouseX;
+        } else if (activeMarker == "right") {
+          rightMarker = mouseX;
+        }
+
+        if (abs(mouseX - rightMarker) < width/100) activeMarker = "right";
+        if (abs(mouseX - leftMarker) < width/100) activeMarker = "left";
       }
+
+      bw_l = int( (leftMarker- axisX.getX1()) /axisX.getSpacing()) ;
+      sendMsg("BWL,"+ str(bw_l));  
+      bw_r = int( (rightMarker- axisX.getX1()) /axisX.getSpacing()) ;
+      sendMsg("BWR,"+ str(bw_r));
     }
-  }
+  } else activeMarker = "none";
+
   int dX = abs(rightMarker - leftMarker);  
   rect( leftMarker, axisY.getY2(), dX, axisY.getY1() - axisY.getY2());
 
   fill(0);
 
-  bw = (sample_rate/1e3)*(bw_l + bw_r)*1.0/NFFT;
+  bw = (sample_rate*1e3)*(bw_r - bw_l)*1.0/NFFT;
   bwr.setText("Selected BW : " + str( int(10*bw)/10.0) + " KHz\n" + "Estimated Power : " + estimated );
 }
