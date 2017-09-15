@@ -110,8 +110,8 @@ def udp_bridge():
 
     bridge = Bridge()
 
-    UDP_IP = "224.0.0.1"
-    UDP_PORT = 6100
+    UDP_IP = ""
+    UDP_PORT = 26100
     bridge.sock = socket.socket(socket.AF_INET,  # Internet
                                 socket.SOCK_DGRAM)  # UDP
     bridge.sock.bind((UDP_IP, UDP_PORT))

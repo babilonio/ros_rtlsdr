@@ -29,8 +29,8 @@ class PSDCalc(object):
         self._fft_size = 1024
         self._sample_rate = 0
         self._inbytes = np.zeros(10)
-        self.sbwl = 512
-        self.sbwr = 512
+        self.sbwl = 0
+        self.sbwr = 1024
         self.estimated_power = 0.0
         self.lock = Lock()
 
@@ -64,17 +64,16 @@ class PSDCalc(object):
         samples.imag = (self._inbytes[1::2] - norm) / 128.0
         self.lock.release()
         f, Pxx_den = signal.welch(
-            samples, self._sample_rate, nperseg=self._fft_size)
+            samples, self._sample_rate, nperseg=self._fft_size, scaling='density')
 
         N = len(Pxx_den) / 2
         nPxx = np.concatenate((Pxx_den[N:], Pxx_den[1:N]))
         nf = np.concatenate((f[N:], f[1:N]))
 
-        psd = 10 * np.log10(self._sample_rate *nPxx)
+        psd = 10 * np.log10(nPxx)
 
         if(self.sbwr > self.sbwl):
-            power_window = sum(
-                self._sample_rate * nPxx[self.sbwl:self.sbwr])
+            power_window = sum(nPxx[self.sbwl:self.sbwr]) * self._sample_rate/ self._fft_size
 
             rospy.loginfo("%sestimated_power : %f%s",
                           bcolors.OKBLUE, 10 * np.log10(power_window), bcolors.ENDC)
@@ -154,7 +153,7 @@ def calc_psd():
 
         if args.plot:
             plt.plot(f, psd_vector.data, hold=False)
-            plt.ylim([-50, 20])
+            plt.ylim([-120, -20])
             plt.pause(0.005)
 
         rate.sleep()

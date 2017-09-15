@@ -1,17 +1,22 @@
-#!/usr/bin/env python
-import rospy
-from std_msgs.msg import Int16
-from std_msgs.msg import Float32
-from sensor_msgs.msg import NavSatFix
 
-import time
-from os.path import expanduser
+
 import numpy as np
 from math import radians, cos, sin, asin, sqrt
 
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import cm
+
+import folium
+from folium import plugins
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 
 def haversine(lat1, lon1, lat2, lon2):
@@ -29,18 +34,6 @@ def haversine(lat1, lon1, lat2, lon2):
     c = 2 * asin(sqrt(a))
     r = 6371000  # Radius of earth in kilometers. Use 3956 for miles
     return c * r
-
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
 
 class Location(object):
     def __init__(self, latitude, longitude):
@@ -134,63 +127,55 @@ class MAP(object):
 
             self._grid += interpolated
 
-
-class Node(object):
-    def __init__(self):
-        self.data = {}
-        self.value = 0
-        self.mapping = 0
-
-    def estimated_power_callback(self, data):
-        self.value = data.data
-
-    def mapping_callback(self, data):
-        self.mapping = data.data
-
-    def location_callback(self, nav):
-
-        latitude = nav.latitude
-        longitude = nav.longitude
-
-        key = Location(latitude, longitude)
-
-        rospy.loginfo("%slocation_callback, {[%f,%f], %f}%s",
-                      bcolors.OKGREEN, latitude, longitude, self.value, bcolors.ENDC)
-
-        self.data.update({key: self.value})
-
-    def mapper(self):
-
-        rospy.init_node('mapper', anonymous=True)
-
-        rospy.Subscriber("mapping", Int16, self.mapping_callback)
-        rospy.Subscriber("location", NavSatFix, self.location_callback)
-        rospy.Subscriber("estimated_power", Float32,
-                         self.estimated_power_callback)
-
-        lastsave = time.time()
-
-        rate = rospy.Rate(10)  # 10hz
-        while not rospy.is_shutdown():
-
-            if(self.mapping):
-                if(time.time() - lastsave > 10):
-                    lastsave = time.time()
-
-                    rospy.loginfo("%sSaving data, n : %d%s",
-                                  bcolors.OKBLUE, len(self.data.keys()), bcolors.ENDC)
-
-                    np.save(expanduser("~") + "/catkin_ws/data/data.npy", self.data)
-            else:
-                rospy.loginfo("%sNothing to do...%s",
-                              bcolors.OKBLUE, bcolors.ENDC)
-
-            rate.sleep()
+# data = {}
+# for i in range(10000):
+#
+#     latitude = 36.735 + np.random.rand(1).astype(float)[0] / 100.0
+#     longitude = -4.555 + np.random.rand(1).astype(float)[0] / 100.0
+#
+#     #val = np.random.rand(1).astype(float)[0] * 100
+#     val = haversine(36.74, -4.56, latitude, longitude)
+#     key = Location(latitude, longitude)
+#     value = val
+#     data.update({key: value})
+#
+# np.save('data.npy', data)
+datap = np.load('data.npy').item()
+datamap = MAP()
+datamap.loadData(datap)
+datamap.interpolate()
 
 
-if __name__ == '__main__':
-    try:
-        m = Node()
-        m.mapper()
-    except rospy.ROSInterruptException:
-        pass
+latitudes = list(l.latitude for l in datap.keys())
+longitudes = list(l.longitude for l in datap.keys())
+datamap.grid[datamap.grid == 0.0] = None
+
+fig = plt.figure(frameon=False, figsize=(datamap._width, datamap._height))
+ax = plt.Axes(fig, [0., 0., 1., 1.])
+ax.set_axis_off()
+fig.add_axes(ax)
+ax.imshow(zip(*datamap.grid), cmap='hot', interpolation='none', aspect = 'auto')
+# plt.show()
+fig.savefig('heatmap.png',transparent=True)
+
+merc = 'heatmap.png'
+
+m = folium.Map([36.73500, -4.55400], zoom_start=16)
+
+img = plugins.ImageOverlay(
+    name='HeatMap',
+    image=merc,
+    bounds=[[max(latitudes), max(longitudes)],[min(latitudes), min(longitudes)]],
+    opacity=0.6,
+    interactive=True,
+    cross_origin=False,
+    zindex=1,
+)
+
+folium.Popup('I am an image').add_to(img)
+
+img.add_to(m)
+
+folium.LayerControl().add_to(m)
+
+m.save('map.html')
