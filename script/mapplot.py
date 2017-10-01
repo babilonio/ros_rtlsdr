@@ -4,7 +4,7 @@ import numpy as np
 from math import radians, cos, sin, asin, sqrt
 
 import matplotlib.pyplot as plt
-
+from os.path import expanduser
 import folium
 from folium import plugins
 
@@ -127,27 +127,32 @@ class MAP(object):
 
             self._grid += interpolated
 
-# data = {}
-# for i in range(10000):
-#
-#     latitude = 36.735 + np.random.rand(1).astype(float)[0] / 100.0
-#     longitude = -4.555 + np.random.rand(1).astype(float)[0] / 100.0
-#
-#     #val = np.random.rand(1).astype(float)[0] * 100
-#     val = haversine(36.74, -4.56, latitude, longitude)
-#     key = Location(latitude, longitude)
-#     value = val
-#     data.update({key: value})
+datap = {}
+for i in range(10000):
+
+    latitude = 36.715 + ((np.random.rand(1).astype(float)[0] - 0.5)*2 / 250.0)
+    longitude = -4.478 + ((np.random.rand(1).astype(float)[0] - 0.5)*2  / 200.0)
+
+    #val = np.random.rand(1).astype(float)[0] * 100
+    val = haversine(36.715, -4.478, latitude, longitude)
+    key = Location(latitude, longitude)
+    value = val
+    datap.update({key: value})
 #
 # np.save('data.npy', data)
-datap = np.load('data.npy').item()
+# filename = expanduser("~") + "/catkin_ws/data/[2017-09-16,16:21:59]_data.npy"
+# filename = "[2017-09-16,16:51:57]_data.npy"
+# datap = np.load(filename).item()
 datamap = MAP()
 datamap.loadData(datap)
-datamap.interpolate()
+#datamap.interpolate()
 
 
 latitudes = list(l.latitude for l in datap.keys())
 longitudes = list(l.longitude for l in datap.keys())
+
+print [max(latitudes), max(longitudes)],[min(latitudes), min(longitudes)]
+
 datamap.grid[datamap.grid == 0.0] = None
 
 fig = plt.figure(frameon=False, figsize=(datamap._width, datamap._height))
@@ -156,11 +161,11 @@ ax.set_axis_off()
 fig.add_axes(ax)
 ax.imshow(zip(*datamap.grid), cmap='hot', interpolation='none', aspect = 'auto')
 # plt.show()
-fig.savefig('heatmap.png',transparent=True)
+fig.savefig('heatmap.png')
 
 merc = 'heatmap.png'
 
-m = folium.Map([36.73500, -4.55400], zoom_start=16)
+m = folium.Map([datamap._ref.latitude, datamap._ref.longitude], zoom_start=16)
 
 img = plugins.ImageOverlay(
     name='HeatMap',

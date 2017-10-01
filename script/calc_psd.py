@@ -75,8 +75,8 @@ class PSDCalc(object):
         if(self.sbwr > self.sbwl):
             power_window = sum(nPxx[self.sbwl:self.sbwr]) * self._sample_rate/ self._fft_size
 
-            rospy.loginfo("%sestimated_power : %f%s",
-                          bcolors.OKBLUE, 10 * np.log10(power_window), bcolors.ENDC)
+            rospy.loginfo("%sestimated_power %d-%d: %f%s",
+                          bcolors.OKBLUE, self.sbwl, self.sbwr, 10 * np.log10(power_window), bcolors.ENDC)
             self.estimated_power = 10 * np.log10(power_window)
 
         rospy.loginfo("%sestimate_psd process time : %f%s",

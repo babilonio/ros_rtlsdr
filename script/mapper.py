@@ -4,7 +4,10 @@ from std_msgs.msg import Int16
 from std_msgs.msg import Float32
 from sensor_msgs.msg import NavSatFix
 
+from threading import Lock
 import time
+import datetime
+
 from os.path import expanduser
 import numpy as np
 from math import radians, cos, sin, asin, sqrt
@@ -12,6 +15,12 @@ from math import radians, cos, sin, asin, sqrt
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
+
+
+def nowstr():
+    return datetime.datetime.fromtimestamp(
+        int(time.time())
+    ).strftime('[%Y-%m-%d,%H:%M:%S]')
 
 
 def haversine(lat1, lon1, lat2, lon2):
@@ -140,24 +149,33 @@ class Node(object):
         self.data = {}
         self.value = 0
         self.mapping = 0
+        self.filename = ''
+        self.lock = Lock()
 
     def estimated_power_callback(self, data):
         self.value = data.data
 
     def mapping_callback(self, data):
         self.mapping = data.data
+        if(self.mapping == 1):
+            self.filename = expanduser(
+                "~") + "/catkin_ws/data/" + nowstr() + "_data.npy"
+        if(self.mapping == 0):
+            self.data.clear()
 
     def location_callback(self, nav):
 
         latitude = nav.latitude
         longitude = nav.longitude
 
-        key = Location(latitude, longitude)
-
         rospy.loginfo("%slocation_callback, {[%f,%f], %f}%s",
                       bcolors.OKGREEN, latitude, longitude, self.value, bcolors.ENDC)
 
-        self.data.update({key: self.value})
+        if (self.mapping):
+            key = Location(latitude, longitude)
+            self.lock.acquire()
+            self.data.update({key: self.value})
+            self.lock.release()
 
     def mapper(self):
 
@@ -179,8 +197,9 @@ class Node(object):
 
                     rospy.loginfo("%sSaving data, n : %d%s",
                                   bcolors.OKBLUE, len(self.data.keys()), bcolors.ENDC)
-
-                    np.save(expanduser("~") + "/catkin_ws/data/data.npy", self.data)
+                    self.lock.acquire()
+                    np.save(self.filename, self.data)
+                    self.lock.release()
             else:
                 rospy.loginfo("%sNothing to do...%s",
                               bcolors.OKBLUE, bcolors.ENDC)

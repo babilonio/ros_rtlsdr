@@ -49,7 +49,7 @@ class Bridge(object):
         self._vector = v
 
     def genString(self):
-        w = self.vector / 48  # / max(abs(self.vector))
+        w = (self.vector+70) / 50.0  # / max(abs(self.vector))
         s = ",".join(str(x) for x in list(w))
 
         return s
